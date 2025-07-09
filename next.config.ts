@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
+  basePath: '/tone-clock',
+  assetPrefix: '/tone-clock/',
 };
 
 export default nextConfig;
