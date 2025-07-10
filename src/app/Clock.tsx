@@ -7,7 +7,7 @@ import { useTime } from "./hooks/useTime";
 import { useAudio } from "./hooks/useAudio";
 
 const Clock = () => {
-  const { time, mounted } = useTime();
+  const { time, mounted, selectedTimezone, setSelectedTimezone } = useTime();
   const {
     audioStarted,
     chordMode,
@@ -48,7 +48,14 @@ const Clock = () => {
         />
       </div>
 
-      <TimeDisplay time={time} chordMode={chordMode} />
+      {/* Time Display */}
+      <TimeDisplay 
+        time={time}
+        chordMode={chordMode} 
+        selectedTimezone={selectedTimezone}
+        onTimezoneChange={setSelectedTimezone}
+      />
+
     </div>
   );
 };

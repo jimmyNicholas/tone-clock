@@ -158,7 +158,6 @@ export const getClockTriad = (
 ): { currentTriad: number[], nextTriad: number[] } => {
   const notePosition = getClockNotePosition(time, scale, false);
   
-  // Generate triads - no inversions, just parallel movement
   const currentTriad = generateTriad(notePosition.currentNote, octave);
   const nextTriad = generateTriad(notePosition.nextNote, octave);
   
@@ -168,3 +167,26 @@ export const getClockTriad = (
 export const getHandAngle = (value: number, max: number): number => {
   return (value / max) * 360 - 90;
 };
+
+// // Convert frequency to note name + cents deviation
+// export const frequencyToNoteWithCents = (frequency: number): string => {
+//   if (!frequency || frequency <= 0) return "—";
+  
+//   // Calculate the number of semitones from A4 (440 Hz)
+//   const A4 = 440;
+//   const semitones = 12 * Math.log2(frequency / A4);
+  
+//   // Find the closest note
+//   const noteIndex = Math.round(semitones) % 12;
+  
+//   // Calculate cents deviation from the closest note
+//   const cents = Math.round((semitones - Math.round(semitones)) * 100);
+  
+//   const noteNames = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+//   const noteName = noteNames[((noteIndex % 12) + 12) % 12]; // Handle negative indices
+  
+//   // Format cents with + or - sign
+//   const centsStr = cents === 0 ? "" : ` ${cents > 0 ? '+' : ''}${cents} ct`;
+  
+//   return `${noteName}${centsStr}`;
+// };
