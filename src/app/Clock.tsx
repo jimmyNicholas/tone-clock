@@ -10,11 +10,9 @@ const Clock = () => {
   const { time, mounted, selectedTimezone, setSelectedTimezone } = useTime();
   const {
     audioStarted,
-    chordMode,
     hourVolume,
     minuteVolume,
     toggleAudio,
-    toggleChordMode,
     setHourVolume,
     setMinuteVolume,
   } = useAudio(time, mounted);
@@ -23,7 +21,6 @@ const Clock = () => {
     hours: time ? time.getHours() % 12 : null,
     minutes: time ? time.getMinutes() : null,
     seconds: time ? time.getSeconds() : null,
-    chordMode: chordMode,
   };
 
   return (
@@ -33,9 +30,7 @@ const Clock = () => {
 
         <AudioControls
           audioStarted={audioStarted}
-          chordMode={chordMode}
           onToggleAudio={toggleAudio}
-          onToggleChordMode={toggleChordMode}
         />
 
         <ClockFace {...clockFaceProps} />
@@ -51,7 +46,6 @@ const Clock = () => {
       {/* Time Display */}
       <TimeDisplay 
         time={time}
-        chordMode={chordMode} 
         selectedTimezone={selectedTimezone}
         onTimezoneChange={setSelectedTimezone}
       />

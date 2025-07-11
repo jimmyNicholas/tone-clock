@@ -4,14 +4,13 @@ type ClockFaceProps = {
     hours: number | null,
     minutes: number | null,
     seconds: number | null,
-    chordMode: boolean,
 }
 
 export const getHandAngle = (value: number, max: number): number => {
   return (value / max) * 360 - 90;
 };
 
-const ClockFace = ({hours, minutes, seconds, chordMode}: ClockFaceProps) => {
+const ClockFace = ({hours, minutes, seconds}: ClockFaceProps) => {
   if (hours == null || minutes == null || seconds == null) return null;
   const hourAngle = getHandAngle(hours + minutes / 60 + seconds / 3600, 12);
   const minuteAngle = getHandAngle(minutes + seconds / 60, 60);
@@ -52,7 +51,7 @@ const ClockFace = ({hours, minutes, seconds, chordMode}: ClockFaceProps) => {
                 cx={x}
                 cy={y}
                 r="20"
-                fill={chordMode ? "#10b981" : "#3b82f6"}
+                fill="#10b981"
                 className="opacity-70"
               />
               <text
@@ -110,7 +109,7 @@ const ClockFace = ({hours, minutes, seconds, chordMode}: ClockFaceProps) => {
           y1="200"
           x2={200 + 85 * Math.cos((minuteAngle * Math.PI) / 180)}
           y2={200 + 85 * Math.sin((minuteAngle * Math.PI) / 180)}
-          stroke={chordMode ? "#059669" : "#1f2937"}
+          stroke="#059669"
           strokeWidth="4"
           strokeLinecap="round"
           className="drop-shadow-sm"
