@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-  RefObject,
-  useMemo,
-} from "react";
+import { useEffect, useState, useCallback, RefObject, useMemo } from "react";
 import { Gain, Oscillator } from "tone";
 import { getOsc, startAudioEngine } from "../audio";
 import {
@@ -14,6 +7,7 @@ import {
   setGainVolume,
   clampVolume,
 } from "../utils";
+import useNote from "./useNote";
 
 interface UseAudioReturn {
   // Audio state
@@ -27,32 +21,24 @@ interface UseAudioReturn {
   setMinuteVolume: (volume: number) => void;
 }
 
-interface NoteRef {
+interface Note {
+  id: string;
+  name: string;
   oscillatorRef: RefObject<Oscillator | null>;
   gainRef: RefObject<Gain | null>;
-  type: "hour" | "minute";
+  timeType: "hour" | "minute";
 }
 
 export const useAudio = (
   time: Date | null,
   mounted: boolean
 ): UseAudioReturn => {
-  // Audio refs
-  const hourOscRef = useRef<Oscillator | null>(null);
-  const minuteOscRef = useRef<Oscillator | null>(null);
-  const hourGainRef = useRef<Gain | null>(null);
-  const minuteGainRef = useRef<Gain | null>(null);
-  const oscRefs = [
-    hourOscRef,
-    minuteOscRef || [],
-  ] as RefObject<Oscillator | null>[];
+  const hourNote = useNote("hour", "Hour Hand", "hour");
+  const minuteNote = useNote("minute", "Minute Hand", "minute");
 
-  const noteRefs: NoteRef[] = useMemo(
-    () => [
-      { oscillatorRef: hourOscRef, gainRef: hourGainRef, type: "hour" },
-      { oscillatorRef: minuteOscRef, gainRef: minuteGainRef, type: "minute" },
-    ],
-    []
+  const noteRefs: Note[] = useMemo(
+    () => [hourNote, minuteNote],
+    [hourNote, minuteNote]
   );
 
   // Audio state
@@ -92,12 +78,12 @@ export const useAudio = (
 
   const updateNoteFrequency = useCallback(
     (
-      noteRef: NoteRef,
+      noteRef: Note,
       currentTime: { hours: number; minutes: number; seconds: number }
     ) => {
       if (!noteRef.oscillatorRef.current) return;
 
-      const frequency = getFrequencyForNoteType(noteRef.type, currentTime);
+      const frequency = getFrequencyForNoteType(noteRef.timeType, currentTime);
       noteRef.oscillatorRef.current.frequency.rampTo(frequency, 0.1);
     },
     []
@@ -107,10 +93,10 @@ export const useAudio = (
     if (!mounted) return;
 
     try {
-      hourGainRef.current = new Gain(0.2).toDestination();
-      minuteGainRef.current = new Gain(0.2).toDestination();
-      hourOscRef.current = getOsc(hourGainRef.current);
-      minuteOscRef.current = getOsc(minuteGainRef.current);
+      noteRefs.forEach((note) => {
+        note.gainRef.current = new Gain(0.2).toDestination();
+        note.oscillatorRef.current = getOsc(note.gainRef.current);
+      });
     } catch (error) {
       console.error("Error initializing Tone.js:", error);
     }
@@ -118,7 +104,8 @@ export const useAudio = (
     return () => {
       try {
         noteRefs.forEach((noteRef) => {
-          if (noteRef.oscillatorRef.current) noteRef.oscillatorRef.current.dispose();
+          if (noteRef.oscillatorRef.current)
+            noteRef.oscillatorRef.current.dispose();
           if (noteRef.gainRef.current) noteRef.gainRef.current.dispose();
         });
       } catch (error) {
@@ -136,12 +123,12 @@ export const useAudio = (
   }, []);
 
   useEffect(() => {
-    setGainVolume(hourGainRef.current, hourVolume);
-  }, [hourVolume]);
+    setGainVolume(noteRefs[0].gainRef.current, hourVolume);
+  }, [hourVolume, noteRefs]);
 
   useEffect(() => {
-    setGainVolume(minuteGainRef.current, minuteVolume);
-  }, [minuteVolume]);
+    setGainVolume(noteRefs[1].gainRef.current, minuteVolume);
+  }, [minuteVolume, noteRefs]);
 
   // Main audio frequency update (now much cleaner!)
   useEffect(() => {
@@ -169,9 +156,12 @@ export const useAudio = (
         .then((ret) => setAudioStarted(ret))
         .then(() => {
           // Start all oscillators
-          oscRefs.forEach((oscRef) => {
-            if (oscRef.current && oscRef.current.state === "stopped") {
-              oscRef.current.start();
+          noteRefs.forEach((note) => {
+            if (
+              note.oscillatorRef.current &&
+              note.oscillatorRef.current.state === "stopped"
+            ) {
+              note.oscillatorRef.current.start();
             }
           });
         });
@@ -183,9 +173,12 @@ export const useAudio = (
   const stopAudio = () => {
     try {
       // Stop all oscillators
-      oscRefs.forEach((oscRef) => {
-        if (oscRef.current && oscRef.current.state === "started") {
-          oscRef.current.stop();
+      noteRefs.forEach((note) => {
+        if (
+          note.oscillatorRef.current &&
+          note.oscillatorRef.current.state === "started"
+        ) {
+          note.oscillatorRef.current.stop();
         }
       });
       // Update audio state
