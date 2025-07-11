@@ -1,10 +1,16 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  RefObject,
+  useMemo,
+} from "react";
 import { Gain, Oscillator } from "tone";
-import { getChordOscillators, getOsc, startAudioEngine } from "../audio";
+import { getOsc, startAudioEngine } from "../audio";
 import {
   getClockFrequency,
   getSecondsInterpolatedFrequency,
-  getClockTriad,
   setGainVolume,
   clampVolume,
 } from "../utils";
@@ -12,15 +18,19 @@ import {
 interface UseAudioReturn {
   // Audio state
   audioStarted: boolean;
-  chordMode: boolean;
   hourVolume: number;
   minuteVolume: number;
 
   // Audio controls
   toggleAudio: () => void;
-  toggleChordMode: () => void;
   setHourVolume: (volume: number) => void;
   setMinuteVolume: (volume: number) => void;
+}
+
+interface NoteRef {
+  oscillatorRef: RefObject<Oscillator | null>;
+  gainRef: RefObject<Gain | null>;
+  type: "hour" | "minute";
 }
 
 export const useAudio = (
@@ -28,159 +38,94 @@ export const useAudio = (
   mounted: boolean
 ): UseAudioReturn => {
   // Audio refs
-  const hourOscRef = useRef<Oscillator>(null);
-  const minuteOscRef = useRef<Oscillator>(null);
-  const chordOscRef = useRef<Oscillator[]>(null);
-  const hourGainRef = useRef<Gain>(null);
-  const minuteGainRef = useRef<Gain>(null);
+  const hourOscRef = useRef<Oscillator | null>(null);
+  const minuteOscRef = useRef<Oscillator | null>(null);
+  const hourGainRef = useRef<Gain | null>(null);
+  const minuteGainRef = useRef<Gain | null>(null);
+  const oscRefs = [
+    hourOscRef,
+    minuteOscRef || [],
+  ] as RefObject<Oscillator | null>[];
+
+  const noteRefs: NoteRef[] = useMemo(
+    () => [
+      { oscillatorRef: hourOscRef, gainRef: hourGainRef, type: "hour" },
+      { oscillatorRef: minuteOscRef, gainRef: minuteGainRef, type: "minute" },
+    ],
+    []
+  );
 
   // Audio state
   const [audioStarted, setAudioStarted] = useState(false);
-  const [chordMode, setChordMode] = useState(false);
   const [hourVolume, setHourVolumeState] = useState(0.2);
   const [minuteVolume, setMinuteVolumeState] = useState(0.2);
 
-  // Helper function: Update hour and minute frequencies
-  const updateSingleNoteFrequencies = useCallback(
-    (currentTime: { hours: number; minutes: number; seconds: number }) => {
-      if (!hourOscRef.current || !minuteOscRef.current) return;
-
-      // Hour frequency
-      const hourFreq = getClockFrequency(currentTime, 2, undefined, true);
-      hourOscRef.current.frequency.rampTo(hourFreq, 0.1);
-
-      // Minute frequency with interpolation
-      const currentMinuteTime = {
-        hours: currentTime.hours,
-        minutes: currentTime.minutes,
-        seconds: 0,
-      };
-      const nextMinuteTime = {
-        hours: currentTime.hours,
-        minutes: (currentTime.minutes + 1) % 60,
-        seconds: 0,
-      };
-
-      const currentMinuteFreq = getClockFrequency(
-        currentMinuteTime,
-        3,
-        undefined,
-        false
-      );
-      const nextMinuteFreq = getClockFrequency(
-        nextMinuteTime,
-        3,
-        undefined,
-        false
-      );
-
-      const minuteFreq = getSecondsInterpolatedFrequency(
-        currentMinuteFreq,
-        nextMinuteFreq,
-        currentTime.seconds
-      );
-
-      minuteOscRef.current.frequency.rampTo(minuteFreq, 0.1);
-    },
-    []
-  );
-
-  // Helper function: Update chord frequencies
-  const updateChordFrequencies = useCallback(
-    (currentTime: { hours: number; minutes: number; seconds: number }) => {
-      if (!chordOscRef.current) return;
-
-      // Calculate chord positions (every 5 minutes)
-      const currentChordPosition = Math.floor(currentTime.minutes / 5);
-      const nextChordPosition = (currentChordPosition + 1) % 12;
-
-      const currentChordTime = {
-        hours: currentTime.hours,
-        minutes: currentChordPosition * 5,
-        seconds: 0,
-      };
-      const nextChordTime = {
-        hours: currentTime.hours,
-        minutes: nextChordPosition * 5,
-        seconds: 0,
-      };
-
-      // Get triads
-      const { currentTriad } = getClockTriad(currentChordTime, 3);
-      const { currentTriad: nextTriad } = getClockTriad(nextChordTime, 3);
-
-      // Calculate progress within 5-minute period
-      const minutesIntoChord = currentTime.minutes % 5;
-      const secondsIntoChord = minutesIntoChord + currentTime.seconds / 60;
-      const chordProgress = secondsIntoChord / 5;
-
-      // Interpolate and update chord oscillators
-      const interpolatedTriadFreqs = currentTriad.map(
-        (freq, i) => freq + (nextTriad[i] - freq) * chordProgress
-      );
-
-      interpolatedTriadFreqs.forEach((freq, i) => {
-        if (chordOscRef.current && chordOscRef.current[i]) {
-          chordOscRef.current[i].frequency.rampTo(freq, 0.1);
-        }
-      });
-    },
-    []
-  );
-
-  // Helper function: Manage oscillator states
-  const manageOscillatorStates = useCallback(() => {
-    if (!minuteOscRef.current || !chordOscRef.current) return;
-
-    if (chordMode) {
-      // Start chord oscillators, stop single note
-      chordOscRef.current.forEach((osc) => {
-        if (osc.state !== "started") osc.start();
-      });
-
-      if (minuteOscRef.current.state === "started") {
-        minuteOscRef.current.stop();
-      }
-    } else {
-      // Stop chord oscillators, start single note
-      chordOscRef.current.forEach((osc) => {
-        if (osc.state === "started") osc.stop();
-      });
-
-      if (minuteOscRef.current.state !== "started") {
-        minuteOscRef.current.start();
-      }
+  const getFrequencyForNoteType = (
+    type: "hour" | "minute",
+    currentTime: { hours: number; minutes: number; seconds: number }
+  ): number => {
+    if (type === "hour") {
+      return getClockFrequency(currentTime, 2, undefined, true);
     }
-  }, [chordMode]);
 
-  // Initialize audio components
+    const currentMinuteTime = { ...currentTime, seconds: 0 };
+    const nextMinuteTime = {
+      ...currentTime,
+      minutes: (currentTime.minutes + 1) % 60,
+      seconds: 0,
+    };
+
+    const currentFreq = getClockFrequency(
+      currentMinuteTime,
+      3,
+      undefined,
+      false
+    );
+    const nextFreq = getClockFrequency(nextMinuteTime, 3, undefined, false);
+
+    return getSecondsInterpolatedFrequency(
+      currentFreq,
+      nextFreq,
+      currentTime.seconds
+    );
+  };
+
+  const updateNoteFrequency = useCallback(
+    (
+      noteRef: NoteRef,
+      currentTime: { hours: number; minutes: number; seconds: number }
+    ) => {
+      if (!noteRef.oscillatorRef.current) return;
+
+      const frequency = getFrequencyForNoteType(noteRef.type, currentTime);
+      noteRef.oscillatorRef.current.frequency.rampTo(frequency, 0.1);
+    },
+    []
+  );
+
   useEffect(() => {
     if (!mounted) return;
 
     try {
       hourGainRef.current = new Gain(0.2).toDestination();
       minuteGainRef.current = new Gain(0.2).toDestination();
-
       hourOscRef.current = getOsc(hourGainRef.current);
       minuteOscRef.current = getOsc(minuteGainRef.current);
-      chordOscRef.current = getChordOscillators(minuteGainRef.current, 3);
     } catch (error) {
       console.error("Error initializing Tone.js:", error);
     }
 
     return () => {
       try {
-        if (hourOscRef.current) hourOscRef.current.dispose();
-        if (minuteOscRef.current) minuteOscRef.current.dispose();
-        if (chordOscRef.current)
-          chordOscRef.current.forEach((osc) => osc.dispose());
-        if (hourGainRef.current) hourGainRef.current.dispose();
-        if (minuteGainRef.current) minuteGainRef.current.dispose();
+        noteRefs.forEach((noteRef) => {
+          if (noteRef.oscillatorRef.current) noteRef.oscillatorRef.current.dispose();
+          if (noteRef.gainRef.current) noteRef.gainRef.current.dispose();
+        });
       } catch (error) {
         console.error("Error disposing Tone.js objects:", error);
       }
     };
-  }, [mounted]);
+  }, [mounted, noteRefs]);
 
   const setHourVolume = useCallback((volume: number) => {
     setHourVolumeState(clampVolume(volume));
@@ -200,8 +145,7 @@ export const useAudio = (
 
   // Main audio frequency update (now much cleaner!)
   useEffect(() => {
-    if (!audioStarted || !hourOscRef.current || !minuteOscRef.current || !time)
-      return;
+    if (!audioStarted || !time) return;
 
     try {
       const currentTime = {
@@ -210,26 +154,13 @@ export const useAudio = (
         seconds: time.getSeconds(),
       };
 
-      // Update frequencies
-      updateSingleNoteFrequencies(currentTime);
-
-      if (chordMode) {
-        updateChordFrequencies(currentTime);
-      }
-
-      // Manage oscillator states
-      manageOscillatorStates();
+      noteRefs.forEach((noteRef) => {
+        updateNoteFrequency(noteRef, currentTime);
+      });
     } catch (error) {
       console.error("Error updating frequencies:", error);
     }
-  }, [
-    time,
-    audioStarted,
-    chordMode,
-    updateSingleNoteFrequencies,
-    updateChordFrequencies,
-    manageOscillatorStates,
-  ]);
+  }, [time, audioStarted, updateNoteFrequency, noteRefs]);
 
   // Audio control functions
   const startAudio = async () => {
@@ -237,15 +168,12 @@ export const useAudio = (
       await startAudioEngine()
         .then((ret) => setAudioStarted(ret))
         .then(() => {
-          if (hourOscRef.current && hourOscRef.current.state === "stopped") {
-            hourOscRef.current.start();
-          }
-          if (
-            minuteOscRef.current &&
-            minuteOscRef.current.state === "stopped"
-          ) {
-            minuteOscRef.current.start();
-          }
+          // Start all oscillators
+          oscRefs.forEach((oscRef) => {
+            if (oscRef.current && oscRef.current.state === "stopped") {
+              oscRef.current.start();
+            }
+          });
         });
     } catch (error) {
       console.error("Error starting audio:", error);
@@ -255,20 +183,11 @@ export const useAudio = (
   const stopAudio = () => {
     try {
       // Stop all oscillators
-      if (hourOscRef.current && hourOscRef.current.state === "started") {
-        hourOscRef.current.stop();
-      }
-      if (minuteOscRef.current && minuteOscRef.current.state === "started") {
-        minuteOscRef.current.stop();
-      }
-      if (chordOscRef.current) {
-        chordOscRef.current.forEach((osc) => {
-          if (osc.state === "started") {
-            osc.stop();
-          }
-        });
-      }
-
+      oscRefs.forEach((oscRef) => {
+        if (oscRef.current && oscRef.current.state === "started") {
+          oscRef.current.stop();
+        }
+      });
       // Update audio state
       setAudioStarted(false);
     } catch (error) {
@@ -284,20 +203,14 @@ export const useAudio = (
     }
   };
 
-  const toggleChordMode = () => {
-    setChordMode(!chordMode);
-  };
-
   return {
     // Audio state
     audioStarted,
-    chordMode,
     hourVolume,
     minuteVolume,
 
     // Audio controls
     toggleAudio,
-    toggleChordMode,
     setHourVolume,
     setMinuteVolume,
   };
