@@ -1,4 +1,5 @@
 import { DEFAULT_SCALE, generateScale } from "./lib";
+import { Gain } from "tone";
 
 // ===== MUSIC THEORY UTILITIES =====
 
@@ -168,25 +169,13 @@ export const getHandAngle = (value: number, max: number): number => {
   return (value / max) * 360 - 90;
 };
 
-// // Convert frequency to note name + cents deviation
-// export const frequencyToNoteWithCents = (frequency: number): string => {
-//   if (!frequency || frequency <= 0) return "—";
-  
-//   // Calculate the number of semitones from A4 (440 Hz)
-//   const A4 = 440;
-//   const semitones = 12 * Math.log2(frequency / A4);
-  
-//   // Find the closest note
-//   const noteIndex = Math.round(semitones) % 12;
-  
-//   // Calculate cents deviation from the closest note
-//   const cents = Math.round((semitones - Math.round(semitones)) * 100);
-  
-//   const noteNames = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
-//   const noteName = noteNames[((noteIndex % 12) + 12) % 12]; // Handle negative indices
-  
-//   // Format cents with + or - sign
-//   const centsStr = cents === 0 ? "" : ` ${cents > 0 ? '+' : ''}${cents} ct`;
-  
-//   return `${noteName}${centsStr}`;
-// };
+// ===== VOLUME CONTROL =====
+export const clampVolume = (volume: number, min: number = 0, max: number = 1): number => {
+  return Math.max(min, Math.min(max, volume));
+};
+
+export const setGainVolume = (gainNode: Gain | null, volume: number): void => {
+  if (gainNode) {
+    gainNode.gain.rampTo(clampVolume(volume), 0.1);
+  }
+}

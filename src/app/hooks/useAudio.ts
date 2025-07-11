@@ -5,6 +5,8 @@ import {
   getClockFrequency,
   getSecondsInterpolatedFrequency,
   getClockTriad,
+  setGainVolume,
+  clampVolume,
 } from "../utils";
 
 interface UseAudioReturn {
@@ -35,8 +37,8 @@ export const useAudio = (
   // Audio state
   const [audioStarted, setAudioStarted] = useState(false);
   const [chordMode, setChordMode] = useState(false);
-  const [hourVolume, setHourVolume] = useState(0.2);
-  const [minuteVolume, setMinuteVolume] = useState(0.2);
+  const [hourVolume, setHourVolumeState] = useState(0.2);
+  const [minuteVolume, setMinuteVolumeState] = useState(0.2);
 
   // Helper function: Update hour and minute frequencies
   const updateSingleNoteFrequencies = useCallback(
@@ -180,17 +182,20 @@ export const useAudio = (
     };
   }, [mounted]);
 
-  // Handle volume changes
+  const setHourVolume = useCallback((volume: number) => {
+    setHourVolumeState(clampVolume(volume));
+  }, []);
+
+  const setMinuteVolume = useCallback((volume: number) => {
+    setMinuteVolumeState(clampVolume(volume));
+  }, []);
+
   useEffect(() => {
-    if (hourGainRef.current) {
-      hourGainRef.current.gain.rampTo(hourVolume, 0.1);
-    }
+    setGainVolume(hourGainRef.current, hourVolume);
   }, [hourVolume]);
 
   useEffect(() => {
-    if (minuteGainRef.current) {
-      minuteGainRef.current.gain.rampTo(minuteVolume, 0.1);
-    }
+    setGainVolume(minuteGainRef.current, minuteVolume);
   }, [minuteVolume]);
 
   // Main audio frequency update (now much cleaner!)
@@ -217,7 +222,14 @@ export const useAudio = (
     } catch (error) {
       console.error("Error updating frequencies:", error);
     }
-  }, [time, audioStarted, chordMode, updateSingleNoteFrequencies, updateChordFrequencies, manageOscillatorStates]);
+  }, [
+    time,
+    audioStarted,
+    chordMode,
+    updateSingleNoteFrequencies,
+    updateChordFrequencies,
+    manageOscillatorStates,
+  ]);
 
   // Audio control functions
   const startAudio = async () => {
