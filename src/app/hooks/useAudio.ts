@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, RefObject, useMemo } from "react";
+import { useEffect, useState, useCallback, RefObject, useRef } from "react";
 import { Gain, Oscillator } from "tone";
 import { getOsc, startAudioEngine } from "../audio";
 import {
@@ -36,10 +36,7 @@ export const useAudio = (
   const hourNote = useNote("hour", "Hour Hand", "hour");
   const minuteNote = useNote("minute", "Minute Hand", "minute");
 
-  const noteRefs: Note[] = useMemo(
-    () => [hourNote, minuteNote],
-    [hourNote, minuteNote]
-  );
+  const notesRef: RefObject<Note[]> = useRef([hourNote, minuteNote]);
 
   // Audio state
   const [audioStarted, setAudioStarted] = useState(false);
@@ -93,7 +90,7 @@ export const useAudio = (
     if (!mounted) return;
 
     try {
-      noteRefs.forEach((note) => {
+      notesRef.current.forEach((note) => {
         note.gainRef.current = new Gain(0.2).toDestination();
         note.oscillatorRef.current = getOsc(note.gainRef.current);
       });
@@ -101,9 +98,11 @@ export const useAudio = (
       console.error("Error initializing Tone.js:", error);
     }
 
+    const currentNotes = notesRef.current;
+
     return () => {
       try {
-        noteRefs.forEach((noteRef) => {
+        currentNotes.forEach((noteRef) => {
           if (noteRef.oscillatorRef.current)
             noteRef.oscillatorRef.current.dispose();
           if (noteRef.gainRef.current) noteRef.gainRef.current.dispose();
@@ -112,7 +111,7 @@ export const useAudio = (
         console.error("Error disposing Tone.js objects:", error);
       }
     };
-  }, [mounted, noteRefs]);
+  }, [mounted]);
 
   const setHourVolume = useCallback((volume: number) => {
     setHourVolumeState(clampVolume(volume));
@@ -123,12 +122,12 @@ export const useAudio = (
   }, []);
 
   useEffect(() => {
-    setGainVolume(noteRefs[0].gainRef.current, hourVolume);
-  }, [hourVolume, noteRefs]);
+    setGainVolume(notesRef.current[0].gainRef.current, hourVolume);
+  }, [hourVolume, notesRef]);
 
   useEffect(() => {
-    setGainVolume(noteRefs[1].gainRef.current, minuteVolume);
-  }, [minuteVolume, noteRefs]);
+    setGainVolume(notesRef.current[1].gainRef.current, minuteVolume);
+  }, [minuteVolume, notesRef]);
 
   // Main audio frequency update (now much cleaner!)
   useEffect(() => {
@@ -141,13 +140,13 @@ export const useAudio = (
         seconds: time.getSeconds(),
       };
 
-      noteRefs.forEach((noteRef) => {
+      notesRef.current.forEach((noteRef) => {
         updateNoteFrequency(noteRef, currentTime);
       });
     } catch (error) {
       console.error("Error updating frequencies:", error);
     }
-  }, [time, audioStarted, updateNoteFrequency, noteRefs]);
+  }, [time, audioStarted, updateNoteFrequency, notesRef]);
 
   // Audio control functions
   const startAudio = async () => {
@@ -156,7 +155,7 @@ export const useAudio = (
         .then((ret) => setAudioStarted(ret))
         .then(() => {
           // Start all oscillators
-          noteRefs.forEach((note) => {
+          notesRef.current.forEach((note) => {
             if (
               note.oscillatorRef.current &&
               note.oscillatorRef.current.state === "stopped"
@@ -173,7 +172,7 @@ export const useAudio = (
   const stopAudio = () => {
     try {
       // Stop all oscillators
-      noteRefs.forEach((note) => {
+      notesRef.current.forEach((note) => {
         if (
           note.oscillatorRef.current &&
           note.oscillatorRef.current.state === "started"
