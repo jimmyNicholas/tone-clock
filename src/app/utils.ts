@@ -1,5 +1,5 @@
 import { DEFAULT_SCALE, generateScale } from "./lib";
-import { Gain } from "tone";
+import { Gain, Oscillator } from "tone";
 
 // ===== MUSIC THEORY UTILITIES =====
 
@@ -131,6 +131,49 @@ export const getClockFrequency = (
     octave
   );
 };
+
+const getFrequencyForNoteType = (
+    type: "hour" | "minute",
+    currentTime: { hours: number; minutes: number; seconds: number }
+  ): number => {
+    if (type === "hour") {
+      return getClockFrequency(currentTime, 2, undefined, true);
+    }
+
+    const currentMinuteTime = { ...currentTime, seconds: 0 };
+    const nextMinuteTime = {
+      ...currentTime,
+      minutes: (currentTime.minutes + 1) % 60,
+      seconds: 0,
+    };
+
+    const currentFreq = getClockFrequency(
+      currentMinuteTime,
+      3,
+      undefined,
+      false
+    );
+    const nextFreq = getClockFrequency(nextMinuteTime, 3, undefined, false);
+
+    return getSecondsInterpolatedFrequency(
+      currentFreq,
+      nextFreq,
+      currentTime.seconds
+    );
+  };
+
+  export const updateNoteFrequency = 
+    (
+      //noteRef: Note,
+      oscillator: Oscillator | null,
+      timeType: "hour" | "minute",
+      currentTime: { hours: number; minutes: number; seconds: number }
+    ) => {
+      if (!oscillator) return;
+
+      const frequency = getFrequencyForNoteType(timeType, currentTime);
+      oscillator.frequency.rampTo(frequency, 0.1);
+    }
 
 // ===== SIMPLIFIED CHORD GENERATION =====
 

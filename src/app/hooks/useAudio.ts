@@ -2,10 +2,9 @@ import { useEffect, useState, useCallback, RefObject, useRef } from "react";
 import { Gain, Oscillator } from "tone";
 import { getOsc, startAudioEngine } from "../audio";
 import {
-  getClockFrequency,
-  getSecondsInterpolatedFrequency,
   setGainVolume,
   clampVolume,
+  updateNoteFrequency,
 } from "../utils";
 import useNote from "./useNote";
 
@@ -42,49 +41,6 @@ export const useAudio = (
   const [audioStarted, setAudioStarted] = useState(false);
   const [hourVolume, setHourVolumeState] = useState(0.2);
   const [minuteVolume, setMinuteVolumeState] = useState(0.2);
-
-  const getFrequencyForNoteType = (
-    type: "hour" | "minute",
-    currentTime: { hours: number; minutes: number; seconds: number }
-  ): number => {
-    if (type === "hour") {
-      return getClockFrequency(currentTime, 2, undefined, true);
-    }
-
-    const currentMinuteTime = { ...currentTime, seconds: 0 };
-    const nextMinuteTime = {
-      ...currentTime,
-      minutes: (currentTime.minutes + 1) % 60,
-      seconds: 0,
-    };
-
-    const currentFreq = getClockFrequency(
-      currentMinuteTime,
-      3,
-      undefined,
-      false
-    );
-    const nextFreq = getClockFrequency(nextMinuteTime, 3, undefined, false);
-
-    return getSecondsInterpolatedFrequency(
-      currentFreq,
-      nextFreq,
-      currentTime.seconds
-    );
-  };
-
-  const updateNoteFrequency = useCallback(
-    (
-      noteRef: Note,
-      currentTime: { hours: number; minutes: number; seconds: number }
-    ) => {
-      if (!noteRef.oscillatorRef.current) return;
-
-      const frequency = getFrequencyForNoteType(noteRef.timeType, currentTime);
-      noteRef.oscillatorRef.current.frequency.rampTo(frequency, 0.1);
-    },
-    []
-  );
 
   useEffect(() => {
     if (!mounted) return;
@@ -141,12 +97,16 @@ export const useAudio = (
       };
 
       notesRef.current.forEach((noteRef) => {
-        updateNoteFrequency(noteRef, currentTime);
+        updateNoteFrequency(
+          noteRef.oscillatorRef.current,
+          noteRef.timeType,
+          currentTime
+        );
       });
     } catch (error) {
       console.error("Error updating frequencies:", error);
     }
-  }, [time, audioStarted, updateNoteFrequency, notesRef]);
+  }, [time, audioStarted, notesRef]);
 
   // Audio control functions
   const startAudio = async () => {

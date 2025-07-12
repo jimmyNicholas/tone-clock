@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useAudio } from "../hooks/useAudio";
 import { startAudioEngine, getOsc, getChordOscillators } from "../audio";
-import { getClockFrequency, getClockTriad } from "../utils";
+import { getClockFrequency, getClockTriad, updateNoteFrequency } from "../utils";
 import { Gain, Oscillator } from "tone";
 
 // Mock the audio utilities
@@ -18,6 +18,7 @@ vi.mock("../utils", () => ({
   getClockTriad: vi.fn(),
   clampVolume: vi.fn((volume) => Math.max(0, Math.min(1, volume))),
   setGainVolume: vi.fn(),
+  updateNoteFrequency: vi.fn(),
 }));
 
 // Mock Tone.js
@@ -213,9 +214,7 @@ describe("useAudio Hook", () => {
       // Change time
       const newTime = new Date("2024-01-01T16:30:45");
       rerender({ time: newTime });
-
-      expect(getClockFrequency).toHaveBeenCalled();
-      expect(mockOscillator.frequency.rampTo).toHaveBeenCalled();
+      expect(updateNoteFrequency).toHaveBeenCalled();
     });
   });
 });
