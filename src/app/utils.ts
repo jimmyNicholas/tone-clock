@@ -7,28 +7,52 @@ import { Gain, Oscillator } from "tone";
 export const noteToFrequency = (note: string, octave: number = 4): number => {
   const A4 = 440;
   const noteOffsets: { [key: string]: number } = {
-    'C': -9, 'C#': -8, 'Db': -8,
-    'D': -7, 'D#': -6, 'Eb': -6,
-    'E': -5, 'F': -4, 'F#': -3, 'Gb': -3,
-    'G': -2, 'G#': -1, 'Ab': -1,
-    'A': 0, 'A#': 1, 'Bb': 1, 'B': 2
+    C: -9,
+    "C#": -8,
+    Db: -8,
+    D: -7,
+    "D#": -6,
+    Eb: -6,
+    E: -5,
+    F: -4,
+    "F#": -3,
+    Gb: -3,
+    G: -2,
+    "G#": -1,
+    Ab: -1,
+    A: 0,
+    "A#": 1,
+    Bb: 1,
+    B: 2,
   };
-  
+
   const offset = noteOffsets[note] || 0;
   const octaveOffset = (octave - 4) * 12;
   const totalSemitones = offset + octaveOffset;
-  
+
   return A4 * Math.pow(2, totalSemitones / 12);
 };
 
 // Reverse lookup: frequency to note name (kept for compatibility)
 export const getNoteFromFreq = (freq: number): string => {
   const noteFreqs = {
-    C: 261.63, 'C#': 277.18, Db: 277.18,
-    D: 293.66, 'D#': 311.13, Eb: 311.13,
-    E: 329.63, F: 349.23, 'F#': 369.99, Gb: 369.99,
-    G: 392.0, 'G#': 415.3, Ab: 415.3,
-    A: 440.0, 'A#': 466.16, Bb: 466.16, B: 493.88,
+    C: 261.63,
+    "C#": 277.18,
+    Db: 277.18,
+    D: 293.66,
+    "D#": 311.13,
+    Eb: 311.13,
+    E: 329.63,
+    F: 349.23,
+    "F#": 369.99,
+    Gb: 369.99,
+    G: 392.0,
+    "G#": 415.3,
+    Ab: 415.3,
+    A: 440.0,
+    "A#": 466.16,
+    Bb: 466.16,
+    B: 493.88,
   };
 
   let closest = "C";
@@ -68,25 +92,25 @@ export const getClockNotePosition = (
   const { hours, minutes, seconds } = time;
   const scaleNotes = generateScale(scale);
   const totalPositions = scaleNotes.length; // Always 12 for our scales
-  
+
   let position: number;
-  
+
   if (isHour) {
     // Hour hand: 0-12 hours maps to 0-12 scale positions
-    position = (hours % 12) + (minutes / 60) + (seconds / 3600);
+    position = (hours % 12) + minutes / 60 + seconds / 3600;
   } else {
     // Minute hand: 0-60 minutes maps to 0-12 scale positions
-    position = ((minutes + (seconds / 60)) / 60) * totalPositions;
+    position = ((minutes + seconds / 60) / 60) * totalPositions;
   }
-  
+
   const noteIndex = Math.floor(position) % totalPositions;
   const nextIndex = (noteIndex + 1) % totalPositions;
   const progress = position - Math.floor(position);
-  
+
   return {
     currentNote: scaleNotes[noteIndex],
     nextNote: scaleNotes[nextIndex],
-    progress
+    progress,
   };
 };
 
@@ -111,7 +135,7 @@ export const interpolateNoteFrequency = (
 ): number => {
   const currentFreq = noteToFrequency(currentNote, octave);
   const nextFreq = noteToFrequency(nextNote, octave);
-  
+
   // Linear interpolation (could be exponential for more musical feel)
   return currentFreq + (nextFreq - currentFreq) * progress;
 };
@@ -133,87 +157,48 @@ export const getClockFrequency = (
 };
 
 const getFrequencyForNoteType = (
-    type: "hour" | "minute",
-    currentTime: { hours: number; minutes: number; seconds: number }
-  ): number => {
-    if (type === "hour") {
-      return getClockFrequency(currentTime, 2, undefined, true);
-    }
+  type: "hour" | "minute",
+  currentTime: { hours: number; minutes: number; seconds: number }
+): number => {
+  if (type === "hour") {
+    return getClockFrequency(currentTime, 2, undefined, true);
+  }
 
-    const currentMinuteTime = { ...currentTime, seconds: 0 };
-    const nextMinuteTime = {
-      ...currentTime,
-      minutes: (currentTime.minutes + 1) % 60,
-      seconds: 0,
-    };
-
-    const currentFreq = getClockFrequency(
-      currentMinuteTime,
-      3,
-      undefined,
-      false
-    );
-    const nextFreq = getClockFrequency(nextMinuteTime, 3, undefined, false);
-
-    return getSecondsInterpolatedFrequency(
-      currentFreq,
-      nextFreq,
-      currentTime.seconds
-    );
+  const currentMinuteTime = { ...currentTime, seconds: 0 };
+  const nextMinuteTime = {
+    ...currentTime,
+    minutes: (currentTime.minutes + 1) % 60,
+    seconds: 0,
   };
 
-  export const updateNoteFrequency = 
-    (
-      //noteRef: Note,
-      oscillator: Oscillator | null,
-      timeType: "hour" | "minute",
-      currentTime: { hours: number; minutes: number; seconds: number }
-    ) => {
-      if (!oscillator) return;
+  const currentFreq = getClockFrequency(currentMinuteTime, 3, undefined, false);
+  const nextFreq = getClockFrequency(nextMinuteTime, 3, undefined, false);
 
-      const frequency = getFrequencyForNoteType(timeType, currentTime);
-      oscillator.frequency.rampTo(frequency, 0.1);
-    }
-
-// ===== SIMPLIFIED CHORD GENERATION =====
-
-
-// Generate simple triad (no complex voice leading)
-export const generateTriad = (
-  rootNote: string,
-  octave: number = 3
-): number[] => {
-  const rootFreq = noteToFrequency(rootNote, octave);
-  
-  // Major triad intervals: Root (0), Major third (4), Perfect fifth (7)
-  const intervals = [0, 4, 7];
-  
-  return intervals.map(interval => {
-    return rootFreq * Math.pow(2, interval / 12);
-  });
+  return getSecondsInterpolatedFrequency(
+    currentFreq,
+    nextFreq,
+    currentTime.seconds
+  );
 };
 
+export const updateNoteFrequency = (
+  //noteRef: Note,
+  oscillator: Oscillator | null,
+  timeType: "hour" | "minute",
+  currentTime: { hours: number; minutes: number; seconds: number }
+) => {
+  if (!oscillator) return;
 
-// Get triad from current time position
-export const getClockTriad = (
-  time: TimePosition,
-  octave: number = 3,
-  scale = DEFAULT_SCALE
-): { currentTriad: number[], nextTriad: number[] } => {
-  const notePosition = getClockNotePosition(time, scale, false);
-  
-  const currentTriad = generateTriad(notePosition.currentNote, octave);
-  const nextTriad = generateTriad(notePosition.nextNote, octave);
-  
-  return { currentTriad, nextTriad };
-};
-
-export const getHandAngle = (value: number, max: number): number => {
-  return (value / max) * 360 - 90;
+  const frequency = getFrequencyForNoteType(timeType, currentTime);
+  oscillator.frequency.rampTo(frequency, 0.1);
 };
 
 // ===== VOLUME CONTROL =====
-export const clampVolume = (volume: number, min: number = 0, max: number = 1): number => {
+export const clampVolume = (
+  volume: number,
+  min: number = 0,
+  max: number = 1
+): number => {
   return Math.max(min, Math.min(max, volume));
 };
 
@@ -221,4 +206,4 @@ export const setGainVolume = (gainNode: Gain | null, volume: number): void => {
   if (gainNode) {
     gainNode.gain.rampTo(clampVolume(volume), 0.1);
   }
-}
+};

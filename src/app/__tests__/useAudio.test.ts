@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useAudio } from "../hooks/useAudio";
 import { startAudioEngine, getOsc, getChordOscillators } from "../audio";
-import { getClockFrequency, getClockTriad, updateNoteFrequency } from "../utils";
+import { getClockFrequency, updateNoteFrequency } from "../utils";
 import { Gain, Oscillator } from "tone";
 
 // Mock the audio utilities
@@ -15,7 +15,6 @@ vi.mock("../audio", () => ({
 vi.mock("../utils", () => ({
   getClockFrequency: vi.fn(),
   getSecondsInterpolatedFrequency: vi.fn(),
-  getClockTriad: vi.fn(),
   clampVolume: vi.fn((volume) => Math.max(0, Math.min(1, volume))),
   setGainVolume: vi.fn(),
   updateNoteFrequency: vi.fn(),
@@ -60,10 +59,6 @@ describe("useAudio Hook", () => {
       mockOscillator,
     ] as unknown as Oscillator[]);
     vi.mocked(getClockFrequency).mockReturnValue(440);
-    vi.mocked(getClockTriad).mockReturnValue({
-      currentTriad: [261.63, 329.63, 392.0],
-      nextTriad: [293.66, 369.99, 440.0],
-    });
   });
 
   describe("Basic Functionality", () => {
