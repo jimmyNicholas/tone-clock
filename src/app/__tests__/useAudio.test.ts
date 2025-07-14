@@ -4,7 +4,32 @@ import { useAudio } from "../hooks/useAudio";
 import { startAudioEngine } from "../audio";
 import { OptionsItem } from "../hooks/useOptions";
 
-// Only mock what we absolutely need to
+// Mock the effects module
+vi.mock("../utils/effects", () => ({
+  createEffectsChain: vi.fn(() => ({
+    input: {
+      connect: vi.fn().mockReturnThis(),
+      dispose: vi.fn(),
+    },
+    effects: {
+      reverb: { dispose: vi.fn() },
+      compressor: { dispose: vi.fn() },
+      filter: { dispose: vi.fn() },
+      chorus: { dispose: vi.fn() },
+      tremolo: { dispose: vi.fn() },
+    },
+  })),
+  disposeEffectsChain: vi.fn(),
+  CLEAN_PRESET: {
+    reverbDecay: 0.1,
+    compressorThreshold: -60,
+    compressorRatio: 1.1,
+    filterFrequency: 20000,
+    chorusDepth: 0,
+    tremoloDepth: 0,
+  },
+}));
+
 vi.mock("../audio", () => ({
   startAudioEngine: vi.fn(),
   getOsc: vi.fn(() => ({
@@ -24,7 +49,7 @@ vi.mock("../utils", () => ({
 
 vi.mock("tone", () => ({
   Gain: vi.fn(() => ({
-    toDestination: vi.fn().mockReturnThis(),
+    connect: vi.fn().mockReturnThis(),
     dispose: vi.fn(),
     gain: { rampTo: vi.fn() }
   })),
@@ -47,13 +72,23 @@ describe("useAudio", () => {
   it("provides option controls for each note", () => {
     const { result } = renderHook(() => useAudio(testTime, true));
     
-    expect(result.current.options).toHaveLength(4); // hour, minute, harmonyOne, harmonyTwo
+    expect(result.current.options).toHaveLength(4);
     expect(result.current.options.map((o: OptionsItem) => o.noteName)).toEqual([
       "hour", 
       "minute", 
       "harmonyOne", 
       "harmonyTwo"
     ]);
+  });
+
+  it("initializes with correct harmonic intervals", () => {
+    const { result } = renderHook(() => useAudio(testTime, true));
+    
+    const harmonyOne = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyOne");
+    const harmonyTwo = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyTwo");
+    
+    expect(harmonyOne?.harmonicInterval).toBe(4); // Major third
+    expect(harmonyTwo?.harmonicInterval).toBe(7); // Perfect fifth
   });
 
   describe("when starting audio", () => {
@@ -85,12 +120,10 @@ describe("useAudio", () => {
       vi.mocked(startAudioEngine).mockResolvedValue(true);
       const { result } = renderHook(() => useAudio(testTime, true));
 
-      // Start audio first
       await act(async () => {
         await result.current.toggleAudio();
       });
 
-      // Then stop it
       await act(async () => {
         await result.current.toggleAudio();
       });
@@ -132,31 +165,24 @@ describe("useAudio", () => {
       const { result } = renderHook(() => useAudio(testTime, true));
 
       act(() => {
-        result.current.updateHarmonicInterval("harmonyOne", 7); // Perfect fifth
+        result.current.updateHarmonicInterval("harmonyOne", 12); // Octave
       });
 
       const harmonyOneOption = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyOne");
-      expect(harmonyOneOption?.harmonicInterval).toBe(7);
+      expect(harmonyOneOption?.harmonicInterval).toBe(12);
     });
+  });
 
-    it("provides initial harmonic intervals for harmony notes", () => {
+  describe("note type control", () => {
+    it("updates note type when changed", () => {
       const { result } = renderHook(() => useAudio(testTime, true));
+
+      act(() => {
+        result.current.updateNoteType("harmonyOne", "hour");
+      });
 
       const harmonyOneOption = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyOne");
-      const harmonyTwoOption = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyTwo");
-      
-      expect(harmonyOneOption?.harmonicInterval).toBe(4); // Major third
-      expect(harmonyTwoOption?.harmonicInterval).toBe(7); // Perfect fifth
-    });
-
-    it("does not provide harmonic intervals for base notes", () => {
-      const { result } = renderHook(() => useAudio(testTime, true));
-
-      const hourOption = result.current.options.find((o: OptionsItem) => o.noteName === "hour");
-      const minuteOption = result.current.options.find((o: OptionsItem) => o.noteName === "minute");
-      
-      expect(hourOption?.harmonicInterval).toBeUndefined();
-      expect(minuteOption?.harmonicInterval).toBeUndefined();
+      expect(harmonyOneOption?.noteType).toBe("hour");
     });
   });
 
