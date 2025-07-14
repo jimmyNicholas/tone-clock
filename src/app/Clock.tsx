@@ -14,6 +14,7 @@ const Clock = () => {
     options,
     updateVolume,
     updateHarmonicInterval,
+    updateNoteType
   } = useAudio(time, mounted);
 
   const clockFaceProps = {
@@ -40,6 +41,7 @@ const Clock = () => {
             options={options}
             updateVolume={updateVolume}
             updateHarmonicInterval={updateHarmonicInterval}
+            updateNoteType={updateNoteType}
           />
         </div>
       </div>

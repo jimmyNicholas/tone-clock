@@ -8,29 +8,41 @@ export interface AudioOptions {
   options: OptionsItem[];
   getVolume: (noteName: string) => number;
   getHarmonicInterval: (noteName: string) => number | undefined;
+  updateNoteType: (noteName: string, noteType: "hour" | "minute") => void;
 }
 
 interface UseOptionsProps {
   initialVolume: number;
   noteName: string;
+  noteType: "hour" | "minute";
   gainRef: React.RefObject<Gain | null>;
-  initialHarmonicInterval: number; 
+  initialHarmonicInterval: number;
 }
 
 export interface OptionsItem {
   noteName: string;
   volume: number;
+  noteType: "hour" | "minute";
   harmonicInterval?: number;
   gainRef: React.RefObject<Gain | null>;
 }
 
-export const useOptions = (useOptionsProps: UseOptionsProps[]): AudioOptions => {
+export const useOptions = (
+  useOptionsProps: UseOptionsProps[]
+): AudioOptions => {
   const initialOptions = useOptionsProps.map(
-    ({ noteName, initialVolume, gainRef, initialHarmonicInterval }) => ({
+    ({
+      noteName,
+      initialVolume,
+      gainRef,
+      initialHarmonicInterval,
+      noteType,
+    }) => ({
       noteName,
       volume: clampVolume(initialVolume),
       harmonicInterval: initialHarmonicInterval,
       gainRef,
+      noteType,
     })
   );
 
@@ -42,7 +54,7 @@ export const useOptions = (useOptionsProps: UseOptionsProps[]): AudioOptions => 
 
     const clampedVolume = clampVolume(newVolume);
     setGainVolume(note.gainRef.current, clampedVolume);
-    
+
     setOptions((prevOptions) =>
       prevOptions.map((option) => {
         if (option.noteName === noteName) {
@@ -64,6 +76,17 @@ export const useOptions = (useOptionsProps: UseOptionsProps[]): AudioOptions => 
     );
   };
 
+  const updateNoteType = (noteName: string, noteType: "hour" | "minute") => {
+    setOptions((prevOptions) =>
+      prevOptions.map((option) => {
+        if (option.noteName === noteName) {
+          return { ...option, noteType };
+        }
+        return option;
+      })
+    );
+  };
+
   const getVolume = (noteName: string): number => {
     const option = options.find((o) => o.noteName === noteName);
     return option ? option.volume : 0;
@@ -78,6 +101,7 @@ export const useOptions = (useOptionsProps: UseOptionsProps[]): AudioOptions => 
     options,
     updateVolume,
     updateHarmonicInterval,
+    updateNoteType,
     getVolume,
     getHarmonicInterval,
   };

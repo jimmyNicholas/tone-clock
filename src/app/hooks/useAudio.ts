@@ -11,6 +11,7 @@ interface UseAudioReturn {
   options: OptionsItem[];
   updateVolume: (noteName: string, newVolume: number) => void;
   updateHarmonicInterval: (noteName: string, interval: number) => void;
+  updateNoteType: (noteName: string, noteType: "hour" | "minute") => void;
 }
 
 export const useAudio = (
@@ -29,19 +30,22 @@ export const useAudio = (
     updateVolume, 
     updateHarmonicInterval, 
     options, 
-    getHarmonicInterval 
+    getHarmonicInterval,
+    updateNoteType
   } = useOptions([
-    { initialVolume: 0.2, noteName: "hour", gainRef: hourNote.gainRef, initialHarmonicInterval: 0 },
-    { initialVolume: 0.2, noteName: "minute", gainRef: minuteNote.gainRef, initialHarmonicInterval: 0 },
+    { initialVolume: 0.2, noteName: "hour", noteType: "hour", gainRef: hourNote.gainRef, initialHarmonicInterval: 0 },
+    { initialVolume: 0.2, noteName: "minute", noteType: "minute", gainRef: minuteNote.gainRef, initialHarmonicInterval: 0 },
     { 
       initialVolume: 0.2, 
       noteName: "harmonyOne", 
+      noteType: "minute",
       gainRef: harmonyOne.gainRef, 
       initialHarmonicInterval: 4 // Major third
     },
     { 
       initialVolume: 0.2, 
       noteName: "harmonyTwo", 
+      noteType: "minute",
       gainRef: harmonyTwo.gainRef, 
       initialHarmonicInterval: 7 // Perfect fifth
     },
@@ -88,11 +92,14 @@ export const useAudio = (
 
       notesRef.current.forEach((noteRef) => {
         // Get the harmonic interval if this is a harmony note
+        const option = options.find(o => o.noteName === noteRef.id);
+        const timeType = option?.noteType;
         const harmonicInterval = getHarmonicInterval(noteRef.id);
         
+        if (!timeType) return;
         updateNoteFrequency(
           noteRef.oscillatorRef.current,
-          noteRef.timeType,
+          timeType,
           currentTime,
           harmonicInterval
         );
@@ -100,7 +107,7 @@ export const useAudio = (
     } catch (error) {
       console.error("Error updating frequencies:", error);
     }
-  }, [time, audioStarted, getHarmonicInterval]);
+  }, [time, audioStarted, options, getHarmonicInterval]);
 
   // Audio control functions
   const startAudio = async () => {
@@ -155,5 +162,6 @@ export const useAudio = (
     options,
     updateVolume,
     updateHarmonicInterval,
+    updateNoteType,
   };
 };
