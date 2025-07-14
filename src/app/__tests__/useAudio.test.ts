@@ -73,7 +73,7 @@ describe("useAudio", () => {
     const { result } = renderHook(() => useAudio(testTime, true));
     
     expect(result.current.options).toHaveLength(4);
-    expect(result.current.options.map((o: OptionsItem) => o.noteName)).toEqual([
+    expect(result.current.options.map((o: OptionsItem) => o.noteId)).toEqual([ // Using noteId
       "hour", 
       "minute", 
       "harmonyOne", 
@@ -84,11 +84,11 @@ describe("useAudio", () => {
   it("initializes with correct harmonic intervals", () => {
     const { result } = renderHook(() => useAudio(testTime, true));
     
-    const harmonyOne = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyOne");
-    const harmonyTwo = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyTwo");
+    const harmonyOne = result.current.options.find((o: OptionsItem) => o.noteId === "harmonyOne"); // Using noteId
+    const harmonyTwo = result.current.options.find((o: OptionsItem) => o.noteId === "harmonyTwo"); // Using noteId
     
-    expect(harmonyOne?.harmonicInterval).toBe(4); // Major third
-    expect(harmonyTwo?.harmonicInterval).toBe(7); // Perfect fifth
+    expect(harmonyOne?.harmonicInterval).toBe(4);
+    expect(harmonyTwo?.harmonicInterval).toBe(7);
   });
 
   describe("when starting audio", () => {
@@ -137,10 +137,10 @@ describe("useAudio", () => {
       const { result } = renderHook(() => useAudio(testTime, true));
 
       act(() => {
-        result.current.updateVolume("hour", 0.8);
+        result.current.updateVolume("hour", 0.8); // Using noteId
       });
 
-      const hourOption = result.current.options.find((o: OptionsItem) => o.noteName === "hour");
+      const hourOption = result.current.options.find((o: OptionsItem) => o.noteId === "hour"); // Finding by noteId
       expect(hourOption?.volume).toBe(0.8);
     });
 
@@ -148,12 +148,12 @@ describe("useAudio", () => {
       const { result } = renderHook(() => useAudio(testTime, true));
 
       act(() => {
-        result.current.updateVolume("hour", 1.5);
-        result.current.updateVolume("minute", -0.2);
+        result.current.updateVolume("hour", 1.5); // Using noteId
+        result.current.updateVolume("minute", -0.2); // Using noteId
       });
 
-      const hourOption = result.current.options.find((o: OptionsItem) => o.noteName === "hour");
-      const minuteOption = result.current.options.find((o: OptionsItem) => o.noteName === "minute");
+      const hourOption = result.current.options.find((o: OptionsItem) => o.noteId === "hour"); // Finding by noteId
+      const minuteOption = result.current.options.find((o: OptionsItem) => o.noteId === "minute"); // Finding by noteId
       
       expect(hourOption?.volume).toBe(1.0);
       expect(minuteOption?.volume).toBe(0.0);
@@ -165,10 +165,10 @@ describe("useAudio", () => {
       const { result } = renderHook(() => useAudio(testTime, true));
 
       act(() => {
-        result.current.updateHarmonicInterval("harmonyOne", 12); // Octave
+        result.current.updateHarmonicInterval("harmonyOne", 12); // Using noteId
       });
 
-      const harmonyOneOption = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyOne");
+      const harmonyOneOption = result.current.options.find((o: OptionsItem) => o.noteId === "harmonyOne"); // Finding by noteId
       expect(harmonyOneOption?.harmonicInterval).toBe(12);
     });
   });
@@ -178,10 +178,10 @@ describe("useAudio", () => {
       const { result } = renderHook(() => useAudio(testTime, true));
 
       act(() => {
-        result.current.updateNoteType("harmonyOne", "hour");
+        result.current.updateNoteType("harmonyOne", "hour"); // Using noteId
       });
 
-      const harmonyOneOption = result.current.options.find((o: OptionsItem) => o.noteName === "harmonyOne");
+      const harmonyOneOption = result.current.options.find((o: OptionsItem) => o.noteId === "harmonyOne"); // Finding by noteId
       expect(harmonyOneOption?.noteType).toBe("hour");
     });
   });
