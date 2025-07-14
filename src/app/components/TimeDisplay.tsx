@@ -24,9 +24,10 @@ const TimeDisplay = ({
   const timezoneOptions = generateTimezoneOptions();
 
   return (
-    <div className="mt-8 text-center">
+    <div className="flex mt-4 text-center">
+
       {/* Timezone Selector */}
-      <div className="mb-4">
+      <div className="mb-4 p-4">
         <label htmlFor="timezone-select" className="text-sm text-gray-600 mr-2">
           Timezone:
         </label>
@@ -45,19 +46,11 @@ const TimeDisplay = ({
       </div>
 
       {/* Time Display */}
-      <div className="text-2xl font-mono text-gray-800">
+      <div className="text-2xl font-mono text-gray-800 p-4">
         {time?.toLocaleTimeString()}
       </div>
 
-      {/* Hand Indicators */}
-      <div className="text-sm text-gray-600 mt-2">
-        <span className="inline-block w-4 h-1 bg-red-600 mr-2"></span>
-        Hour Hand:{" "}
-        <span
-          className={`ml-4 inline-block w-4 h-1 mr-2 bg-gray-800`}
-        ></span>
-        Minute Hand:{" "}
-      </div>
+      
     </div>
   );
 };

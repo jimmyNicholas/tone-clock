@@ -37,7 +37,7 @@ const VolumeControls = ({
 
       <div className="flex flex-col items-center">
         <label className="text-sm font-medium text-gray-700 mb-2">
-          Minute Hand
+          Minute Hand (with third and fifth)
         </label>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500">🔇</span>
