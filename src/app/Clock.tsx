@@ -20,6 +20,7 @@ const Clock = () => {
     hours: time ? time.getHours() % 12 : null,
     minutes: time ? time.getMinutes() : null,
     seconds: time ? time.getSeconds() : null,
+    size: 500,
   };
 
   return (

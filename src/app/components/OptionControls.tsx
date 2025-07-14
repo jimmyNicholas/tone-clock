@@ -67,7 +67,6 @@ const OptionControls = ({
             {/* Harmonic Interval Control (only for harmony notes) */}
             {harmonicInterval !== undefined && (
               <div className="flex flex-col items-center gap-2">
-                <span className="text-xs font-medium text-gray-600">Harmony</span>
                 <select
                   value={harmonicInterval}
                   onChange={(e) =>
