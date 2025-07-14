@@ -16,7 +16,7 @@ const ClockFace = ({hours, minutes, seconds}: ClockFaceProps) => {
   const minuteAngle = getHandAngle(minutes + seconds / 60, 60);
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center justify-center w-full h-full">
       <svg width="400" height="400" className="drop-shadow-xl">
         {/* Outer circle background */}
         <circle

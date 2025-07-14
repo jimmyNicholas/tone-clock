@@ -156,41 +156,69 @@ export const getClockFrequency = (
   );
 };
 
-const getFrequencyForNoteType = (
-  type: "hour" | "minute",
-  currentTime: { hours: number; minutes: number; seconds: number }
-): number => {
-  if (type === "hour") {
-    return getClockFrequency(currentTime, 2, undefined, true);
-  }
+// const getFrequencyForNoteType = (
+//   type: "hour" | "minute",
+//   currentTime: { hours: number; minutes: number; seconds: number }
+// ): number => {
+//   if (type === "hour") {
+//     return getClockFrequency(currentTime, 2, undefined, true);
+//   }
 
-  const currentMinuteTime = { ...currentTime, seconds: 0 };
-  const nextMinuteTime = {
-    ...currentTime,
-    minutes: (currentTime.minutes + 1) % 60,
-    seconds: 0,
-  };
+//   const currentMinuteTime = { ...currentTime, seconds: 0 };
+//   const nextMinuteTime = {
+//     ...currentTime,
+//     minutes: (currentTime.minutes + 1) % 60,
+//     seconds: 0,
+//   };
 
-  const currentFreq = getClockFrequency(currentMinuteTime, 3, undefined, false);
-  const nextFreq = getClockFrequency(nextMinuteTime, 3, undefined, false);
+//   const currentFreq = getClockFrequency(currentMinuteTime, 3, undefined, false);
+//   const nextFreq = getClockFrequency(nextMinuteTime, 3, undefined, false);
 
-  return getSecondsInterpolatedFrequency(
-    currentFreq,
-    nextFreq,
-    currentTime.seconds
-  );
-};
+//   return getSecondsInterpolatedFrequency(
+//     currentFreq,
+//     nextFreq,
+//     currentTime.seconds
+//   );
+// };
 
 export const updateNoteFrequency = (
-  //noteRef: Note,
   oscillator: Oscillator | null,
   timeType: "hour" | "minute",
-  currentTime: { hours: number; minutes: number; seconds: number }
+  currentTime: { hours: number; minutes: number; seconds: number },
+  harmonicInterval?: number
 ) => {
   if (!oscillator) return;
 
-  const frequency = getFrequencyForNoteType(timeType, currentTime);
-  oscillator.frequency.rampTo(frequency, 0.1);
+  // Get base frequency based on time type
+  let baseFrequency: number;
+  
+  if (timeType === "hour") {
+    baseFrequency = getClockFrequency(currentTime, 2, undefined, true);
+  } else {
+    // Minute hand logic
+    const currentMinuteTime = { ...currentTime, seconds: 0 };
+    const nextMinuteTime = {
+      ...currentTime,
+      minutes: (currentTime.minutes + 1) % 60,
+      seconds: 0,
+    };
+
+    const currentFreq = getClockFrequency(currentMinuteTime, 3, undefined, false);
+    const nextFreq = getClockFrequency(nextMinuteTime, 3, undefined, false);
+
+    baseFrequency = getSecondsInterpolatedFrequency(
+      currentFreq,
+      nextFreq,
+      currentTime.seconds
+    );
+  }
+
+  // Apply harmonic interval if specified
+  const finalFrequency = harmonicInterval !== undefined 
+    ? baseFrequency * Math.pow(2, harmonicInterval / 12)
+    : baseFrequency;
+
+  oscillator.frequency.rampTo(finalFrequency, 0.1);
 };
 
 // ===== VOLUME CONTROL =====

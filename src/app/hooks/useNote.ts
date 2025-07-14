@@ -1,19 +1,21 @@
 import { RefObject, useRef } from "react";
 import { Gain, Oscillator } from "tone";
 
-interface UseNoteReturn {
+export interface Note {
   id: string;
   name: string;
   oscillatorRef: RefObject<Oscillator | null>;
   gainRef: RefObject<Gain | null>;
   timeType: "hour" | "minute";
+  harmonicInterval?: number;
 }
 
-const useNote = (
+export const useNote = (
   id: string,
   name: string,
-  timeType: "hour" | "minute"
-): UseNoteReturn => {
+  timeType: "hour" | "minute",
+  harmonicInterval?: number
+): Note => {
   const oscillatorRef = useRef<Oscillator | null>(null);
   const gainRef = useRef<Gain | null>(null);
 
@@ -23,6 +25,7 @@ const useNote = (
     oscillatorRef,
     gainRef,
     timeType,
+    harmonicInterval,
   };
 };
 

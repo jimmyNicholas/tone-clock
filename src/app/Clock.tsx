@@ -1,5 +1,5 @@
 import ClockFace from "./components/ClockFace";
-import VolumeControls from "./components/VolumeControls";
+import OptionControls from "./components/OptionControls";
 import AudioControls from "./components/AudioControls";
 import TimeDisplay from "./components/TimeDisplay";
 import AppHeader from "./components/AppHeader";
@@ -11,8 +11,9 @@ const Clock = () => {
   const {
     audioStarted,
     toggleAudio,
-    volumes,
+    options,
     updateVolume,
+    updateHarmonicInterval,
   } = useAudio(time, mounted);
 
   const clockFaceProps = {
@@ -31,21 +32,23 @@ const Clock = () => {
           onToggleAudio={toggleAudio}
         />
 
-        <ClockFace {...clockFaceProps} />
+        <div className="grid grid-cols-[2fr_1fr] mt-6 text-lg font-semibold text-gray-800">
+          <ClockFace {...clockFaceProps} />
 
-        <VolumeControls
-          volumes={volumes}
-          updateVolume={updateVolume}
-        />
+          <OptionControls
+            options={options}
+            updateVolume={updateVolume}
+            updateHarmonicInterval={updateHarmonicInterval}
+          />
+        </div>
       </div>
 
       {/* Time Display */}
-      <TimeDisplay 
+      <TimeDisplay
         time={time}
         selectedTimezone={selectedTimezone}
         onTimezoneChange={setSelectedTimezone}
       />
-
     </div>
   );
 };

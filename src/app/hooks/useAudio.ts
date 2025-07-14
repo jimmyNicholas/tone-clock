@@ -1,26 +1,16 @@
 import { useEffect, useState, RefObject, useRef } from "react";
-import { Gain, Oscillator } from "tone";
+import { Gain } from "tone";
 import { getOsc, startAudioEngine } from "../audio";
-import {
-  updateNoteFrequency,
-} from "../utils";
-import useNote from "./useNote";
-import { useVolume, VolumesItem } from "./useVolume";
+import { updateNoteFrequency } from "../utils";
+import useNote, { Note } from "./useNote";
+import { useOptions, OptionsItem } from "./useOptions";
 
 interface UseAudioReturn {
   audioStarted: boolean;
   toggleAudio: () => void;
-
-  volumes: VolumesItem[];
+  options: OptionsItem[];
   updateVolume: (noteName: string, newVolume: number) => void;
-}
-
-interface Note {
-  id: string;
-  name: string;
-  oscillatorRef: RefObject<Oscillator | null>;
-  gainRef: RefObject<Gain | null>;
-  timeType: "hour" | "minute";
+  updateHarmonicInterval: (noteName: string, interval: number) => void;
 }
 
 export const useAudio = (
@@ -29,20 +19,38 @@ export const useAudio = (
 ): UseAudioReturn => {
   const hourNote = useNote("hour", "Hour Hand", "hour");
   const minuteNote = useNote("minute", "Minute Hand", "minute");
-
-  const notesRef: RefObject<Note[]> = useRef([hourNote, minuteNote]);
-
+  const harmonyOne = useNote("harmonyOne", "Harmony One", "minute");
+  const harmonyTwo = useNote("harmonyTwo", "Harmony Two", "minute");
+  
+  const notesRef: RefObject<Note[]> = useRef([hourNote, minuteNote, harmonyOne, harmonyTwo]);
   const [audioStarted, setAudioStarted] = useState(false);
 
-  const initialValue = 0.2;
-  const { updateVolume, volumes } = useVolume([
-    { initialValue: initialValue, noteName: "hour", gainRef: hourNote.gainRef },
-    { initialValue: initialValue, noteName: "minute", gainRef: minuteNote.gainRef },
+  const { 
+    updateVolume, 
+    updateHarmonicInterval, 
+    options, 
+    getHarmonicInterval 
+  } = useOptions([
+    { initialVolume: 0.2, noteName: "hour", gainRef: hourNote.gainRef, initialHarmonicInterval: 0 },
+    { initialVolume: 0.2, noteName: "minute", gainRef: minuteNote.gainRef, initialHarmonicInterval: 0 },
+    { 
+      initialVolume: 0.2, 
+      noteName: "harmonyOne", 
+      gainRef: harmonyOne.gainRef, 
+      initialHarmonicInterval: 4 // Major third
+    },
+    { 
+      initialVolume: 0.2, 
+      noteName: "harmonyTwo", 
+      gainRef: harmonyTwo.gainRef, 
+      initialHarmonicInterval: 7 // Perfect fifth
+    },
   ]);
 
+  // Initialize audio components
   useEffect(() => {
     if (!mounted) return;
-
+    
     try {
       notesRef.current.forEach((note) => {
         note.gainRef.current = new Gain(0.2).toDestination();
@@ -53,13 +61,13 @@ export const useAudio = (
     }
 
     const currentNotes = notesRef.current;
-
     return () => {
       try {
         currentNotes.forEach((noteRef) => {
           if (noteRef.oscillatorRef.current)
             noteRef.oscillatorRef.current.dispose();
-          if (noteRef.gainRef.current) noteRef.gainRef.current.dispose();
+          if (noteRef.gainRef.current) 
+            noteRef.gainRef.current.dispose();
         });
       } catch (error) {
         console.error("Error disposing Tone.js objects:", error);
@@ -67,10 +75,10 @@ export const useAudio = (
     };
   }, [mounted]);
 
-  // Main audio frequency update 
+  // Main audio frequency update
   useEffect(() => {
     if (!audioStarted || !time) return;
-
+    
     try {
       const currentTime = {
         hours: time.getHours() % 12,
@@ -79,16 +87,20 @@ export const useAudio = (
       };
 
       notesRef.current.forEach((noteRef) => {
+        // Get the harmonic interval if this is a harmony note
+        const harmonicInterval = getHarmonicInterval(noteRef.id);
+        
         updateNoteFrequency(
           noteRef.oscillatorRef.current,
           noteRef.timeType,
-          currentTime
+          currentTime,
+          harmonicInterval
         );
       });
     } catch (error) {
       console.error("Error updating frequencies:", error);
     }
-  }, [time, audioStarted, notesRef]);
+  }, [time, audioStarted, getHarmonicInterval]);
 
   // Audio control functions
   const startAudio = async () => {
@@ -140,9 +152,8 @@ export const useAudio = (
   return {
     audioStarted,
     toggleAudio,
-
-     volumes,
+    options,
     updateVolume,
-   
+    updateHarmonicInterval,
   };
 };
