@@ -1,5 +1,5 @@
 import ClockFace from "./components/ClockFace";
-import VolumeControls from "./components/VolumeControls";
+import OptionControls from "./components/OptionControls";
 import AudioControls from "./components/AudioControls";
 import TimeDisplay from "./components/TimeDisplay";
 import AppHeader from "./components/AppHeader";
@@ -10,20 +10,18 @@ const Clock = () => {
   const { time, mounted, selectedTimezone, setSelectedTimezone } = useTime();
   const {
     audioStarted,
-    chordMode,
-    hourVolume,
-    minuteVolume,
     toggleAudio,
-    toggleChordMode,
-    setHourVolume,
-    setMinuteVolume,
+    options,
+    updateVolume,
+    updateHarmonicInterval,
+    updateNoteType
   } = useAudio(time, mounted);
 
   const clockFaceProps = {
     hours: time ? time.getHours() % 12 : null,
     minutes: time ? time.getMinutes() : null,
     seconds: time ? time.getSeconds() : null,
-    chordMode: chordMode,
+    size: 500,
   };
 
   return (
@@ -33,29 +31,27 @@ const Clock = () => {
 
         <AudioControls
           audioStarted={audioStarted}
-          chordMode={chordMode}
           onToggleAudio={toggleAudio}
-          onToggleChordMode={toggleChordMode}
         />
 
-        <ClockFace {...clockFaceProps} />
+        <div className="grid grid-cols-[2fr_1fr] mt-6 text-lg font-semibold text-gray-800">
+          <ClockFace {...clockFaceProps} />
 
-        <VolumeControls
-          hourVolume={hourVolume}
-          minuteVolume={minuteVolume}
-          onHourVolumeChange={setHourVolume}
-          onMinuteVolumeChange={setMinuteVolume}
-        />
+          <OptionControls
+            options={options}
+            updateVolume={updateVolume}
+            updateHarmonicInterval={updateHarmonicInterval}
+            updateNoteType={updateNoteType}
+          />
+        </div>
       </div>
 
       {/* Time Display */}
-      <TimeDisplay 
+      <TimeDisplay
         time={time}
-        chordMode={chordMode} 
         selectedTimezone={selectedTimezone}
         onTimezoneChange={setSelectedTimezone}
       />
-
     </div>
   );
 };
