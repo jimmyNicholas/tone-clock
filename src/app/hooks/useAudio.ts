@@ -25,10 +25,10 @@ export const useAudio = (
   time: Date | null,
   mounted: boolean
 ): UseAudioReturn => {
-  const hourNote = useNote("hour", "Hour Hand", "hour");
-  const minuteNote = useNote("minute", "Minute Hand", "minute");
-  const harmonyOne = useNote("harmonyOne", "Harmony One", "minute");
-  const harmonyTwo = useNote("harmonyTwo", "Harmony Two", "minute");
+  const hourNote = useNote("hour", "hour", "hour");
+  const minuteNote = useNote("minute", "minute", "minute");
+  const harmonyOne = useNote("harmonyOne", "harmonyOne", "minute");
+  const harmonyTwo = useNote("harmonyTwo", "harmonyTwo", "minute");
 
   const notesRef: RefObject<Note[]> = useRef([
     hourNote,
@@ -39,6 +39,8 @@ export const useAudio = (
   const masterEffectsRef = useRef<EffectsChain | null>(null);
   const [audioStarted, setAudioStarted] = useState(false);
 
+  const initialVolume = 0.5;
+
   const {
     updateVolume,
     updateHarmonicInterval,
@@ -47,29 +49,33 @@ export const useAudio = (
     updateNoteType,
   } = useOptions([
     {
-      initialVolume: 0.2,
-      noteName: "hour",
+      noteId: "hour",
+      initialVolume: initialVolume,
+      noteName: "Tone One",
       noteType: "hour",
       gainRef: hourNote.gainRef,
       initialHarmonicInterval: 0,
     },
     {
-      initialVolume: 0.2,
-      noteName: "minute",
+      noteId: "minute",
+      initialVolume: initialVolume,
+      noteName: "Tone Two",
       noteType: "minute",
       gainRef: minuteNote.gainRef,
       initialHarmonicInterval: 0,
     },
     {
-      initialVolume: 0.2,
-      noteName: "harmonyOne",
+      noteId: "harmonyOne",
+      initialVolume: initialVolume,
+      noteName: "Tone Three",
       noteType: "minute",
       gainRef: harmonyOne.gainRef,
       initialHarmonicInterval: 4, // Major third
     },
     {
-      initialVolume: 0.2,
-      noteName: "harmonyTwo",
+      noteId: "harmonyTwo",
+      initialVolume: initialVolume,
+      noteName: "Tone Four",
       noteType: "minute",
       gainRef: harmonyTwo.gainRef,
       initialHarmonicInterval: 7, // Perfect fifth
@@ -85,7 +91,7 @@ export const useAudio = (
       masterEffectsRef.current = effectsChain;
 
       notesRef.current.forEach((note) => {
-        note.gainRef.current = new Gain(0.2).connect(effectsChain.input);
+        note.gainRef.current = new Gain(initialVolume).connect(effectsChain.input);
         note.oscillatorRef.current = getOsc(note.gainRef.current);
       });
     } catch (error) {
@@ -126,7 +132,7 @@ export const useAudio = (
 
       notesRef.current.forEach((noteRef) => {
         // Get the harmonic interval if this is a harmony note
-        const option = options.find((o) => o.noteName === noteRef.id);
+        const option = options.find((o) => o.noteId === noteRef.id);
         const timeType = option?.noteType;
         const harmonicInterval = getHarmonicInterval(noteRef.id);
 

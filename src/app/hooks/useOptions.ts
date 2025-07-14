@@ -3,16 +3,17 @@ import { clampVolume, setGainVolume } from "../utils";
 import { Gain } from "tone";
 
 export interface AudioOptions {
-  updateVolume: (noteName: string, newVolume: number) => void;
-  updateHarmonicInterval: (noteName: string, interval: number) => void;
+  updateVolume: (noteId: string, newVolume: number) => void;
+  updateHarmonicInterval: (noteId: string, interval: number) => void;
   options: OptionsItem[];
-  getVolume: (noteName: string) => number;
-  getHarmonicInterval: (noteName: string) => number | undefined;
-  updateNoteType: (noteName: string, noteType: "hour" | "minute") => void;
+  getVolume: (noteId: string) => number;
+  getHarmonicInterval: (noteId: string) => number | undefined;
+  updateNoteType: (noteId: string, noteType: "hour" | "minute") => void;
 }
 
 interface UseOptionsProps {
   initialVolume: number;
+  noteId: string;
   noteName: string;
   noteType: "hour" | "minute";
   gainRef: React.RefObject<Gain | null>;
@@ -20,6 +21,7 @@ interface UseOptionsProps {
 }
 
 export interface OptionsItem {
+  noteId: string;
   noteName: string;
   volume: number;
   noteType: "hour" | "minute";
@@ -32,12 +34,14 @@ export const useOptions = (
 ): AudioOptions => {
   const initialOptions = useOptionsProps.map(
     ({
+      noteId,
       noteName,
       initialVolume,
       gainRef,
       initialHarmonicInterval,
       noteType,
     }) => ({
+      noteId,
       noteName,
       volume: clampVolume(initialVolume),
       harmonicInterval: initialHarmonicInterval,
@@ -48,8 +52,8 @@ export const useOptions = (
 
   const [options, setOptions] = useState(initialOptions);
 
-  const updateVolume = (noteName: string, newVolume: number) => {
-    const note = options.find((o) => o.noteName === noteName);
+  const updateVolume = (noteId: string, newVolume: number) => {
+    const note = options.find((o) => o.noteId === noteId);
     if (!note || !note.gainRef.current) return;
 
     const clampedVolume = clampVolume(newVolume);
@@ -57,7 +61,7 @@ export const useOptions = (
 
     setOptions((prevOptions) =>
       prevOptions.map((option) => {
-        if (option.noteName === noteName) {
+        if (option.noteId === noteId) {
           return { ...option, volume: clampedVolume };
         }
         return option;
@@ -65,10 +69,10 @@ export const useOptions = (
     );
   };
 
-  const updateHarmonicInterval = (noteName: string, interval: number) => {
+  const updateHarmonicInterval = (noteId: string, interval: number) => {
     setOptions((prevOptions) =>
       prevOptions.map((option) => {
-        if (option.noteName === noteName) {
+        if (option.noteId === noteId) {
           return { ...option, harmonicInterval: interval };
         }
         return option;
@@ -76,10 +80,10 @@ export const useOptions = (
     );
   };
 
-  const updateNoteType = (noteName: string, noteType: "hour" | "minute") => {
+  const updateNoteType = (noteId: string, noteType: "hour" | "minute") => {
     setOptions((prevOptions) =>
       prevOptions.map((option) => {
-        if (option.noteName === noteName) {
+        if (option.noteId === noteId) {
           return { ...option, noteType };
         }
         return option;
@@ -87,13 +91,13 @@ export const useOptions = (
     );
   };
 
-  const getVolume = (noteName: string): number => {
-    const option = options.find((o) => o.noteName === noteName);
+  const getVolume = (noteId: string): number => {
+    const option = options.find((o) => o.noteId === noteId);
     return option ? option.volume : 0;
   };
 
-  const getHarmonicInterval = (noteName: string): number | undefined => {
-    const option = options.find((o) => o.noteName === noteName);
+  const getHarmonicInterval = (noteId: string): number | undefined => {
+    const option = options.find((o) => o.noteId === noteId);
     return option?.harmonicInterval;
   };
 
