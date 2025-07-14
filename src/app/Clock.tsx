@@ -10,11 +10,9 @@ const Clock = () => {
   const { time, mounted, selectedTimezone, setSelectedTimezone } = useTime();
   const {
     audioStarted,
-    hourVolume,
-    minuteVolume,
     toggleAudio,
-    setHourVolume,
-    setMinuteVolume,
+    volumes,
+    updateVolume,
   } = useAudio(time, mounted);
 
   const clockFaceProps = {
@@ -36,10 +34,8 @@ const Clock = () => {
         <ClockFace {...clockFaceProps} />
 
         <VolumeControls
-          hourVolume={hourVolume}
-          minuteVolume={minuteVolume}
-          onHourVolumeChange={setHourVolume}
-          onMinuteVolumeChange={setMinuteVolume}
+          volumes={volumes}
+          updateVolume={updateVolume}
         />
       </div>
 

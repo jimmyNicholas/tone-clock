@@ -1,23 +1,18 @@
-import { useEffect, useState, useCallback, RefObject, useRef } from "react";
+import { useEffect, useState, RefObject, useRef } from "react";
 import { Gain, Oscillator } from "tone";
 import { getOsc, startAudioEngine } from "../audio";
 import {
-  setGainVolume,
-  clampVolume,
   updateNoteFrequency,
 } from "../utils";
 import useNote from "./useNote";
+import { useVolume, VolumesItem } from "./useVolume";
 
 interface UseAudioReturn {
-  // Audio state
   audioStarted: boolean;
-  hourVolume: number;
-  minuteVolume: number;
-
-  // Audio controls
   toggleAudio: () => void;
-  setHourVolume: (volume: number) => void;
-  setMinuteVolume: (volume: number) => void;
+
+  volumes: VolumesItem[];
+  updateVolume: (noteName: string, newVolume: number) => void;
 }
 
 interface Note {
@@ -37,10 +32,13 @@ export const useAudio = (
 
   const notesRef: RefObject<Note[]> = useRef([hourNote, minuteNote]);
 
-  // Audio state
   const [audioStarted, setAudioStarted] = useState(false);
-  const [hourVolume, setHourVolumeState] = useState(0.2);
-  const [minuteVolume, setMinuteVolumeState] = useState(0.2);
+
+  const initialValue = 0.2;
+  const { updateVolume, volumes } = useVolume([
+    { initialValue: initialValue, noteName: "hour", gainRef: hourNote.gainRef },
+    { initialValue: initialValue, noteName: "minute", gainRef: minuteNote.gainRef },
+  ]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -69,23 +67,7 @@ export const useAudio = (
     };
   }, [mounted]);
 
-  const setHourVolume = useCallback((volume: number) => {
-    setHourVolumeState(clampVolume(volume));
-  }, []);
-
-  const setMinuteVolume = useCallback((volume: number) => {
-    setMinuteVolumeState(clampVolume(volume));
-  }, []);
-
-  useEffect(() => {
-    setGainVolume(notesRef.current[0].gainRef.current, hourVolume);
-  }, [hourVolume, notesRef]);
-
-  useEffect(() => {
-    setGainVolume(notesRef.current[1].gainRef.current, minuteVolume);
-  }, [minuteVolume, notesRef]);
-
-  // Main audio frequency update (now much cleaner!)
+  // Main audio frequency update 
   useEffect(() => {
     if (!audioStarted || !time) return;
 
@@ -156,14 +138,11 @@ export const useAudio = (
   };
 
   return {
-    // Audio state
     audioStarted,
-    hourVolume,
-    minuteVolume,
-
-    // Audio controls
     toggleAudio,
-    setHourVolume,
-    setMinuteVolume,
+
+     volumes,
+    updateVolume,
+   
   };
 };
