@@ -11,7 +11,7 @@ const Clock = () => {
   const {
     audioStarted,
     toggleAudio,
-    options,
+    notes,
     updateVolume,
     updateHarmonicInterval,
     updateNoteType
@@ -38,7 +38,7 @@ const Clock = () => {
           <ClockFace {...clockFaceProps} />
 
           <OptionControls
-            options={options}
+            notes={notes}
             updateVolume={updateVolume}
             updateHarmonicInterval={updateHarmonicInterval}
             updateNoteType={updateNoteType}

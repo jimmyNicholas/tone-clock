@@ -1,14 +1,14 @@
-import { OptionsItem } from "../hooks/useOptions";
+import { AudioNote } from "../hooks/useAudio";
 
 interface OptionControlsProps {
-  options: OptionsItem[];
+  notes: AudioNote[];
   updateVolume: (noteId: string, newVolume: number) => void;
   updateHarmonicInterval: (noteId: string, interval: number) => void;
   updateNoteType: (noteId: string, noteType: "hour" | "minute") => void;
 }
 
 const OptionControls = ({
-  options,
+  notes,
   updateVolume,
   updateHarmonicInterval,
   updateNoteType,
@@ -38,24 +38,24 @@ const OptionControls = ({
 
   return (
     <div className="grid grid-cols-2 gap-6 justify-center items-center flex-wrap">
-      {options.length > 0 ? (
-        options.map(
-          ({ noteId, noteName, volume, harmonicInterval, noteType }, index) => (
+      {notes.length > 0 ? (
+        notes.map(
+          ({ id, name, volume, harmonicInterval, timeType }) => (
             <div
-              key={index}
+              key={id}
               className="flex flex-col items-center gap-1 p-2 bg-gray-50 rounded-lg"
             >
               <label className="text-sm font-medium text-gray-700">
-                {noteName}
+                {name}
               </label>
 
               {/* Note Type Toggle Switch */}
               <div className="flex flex-col items-center gap-2">
                 <div className="flex bg-gray-200 rounded-full p-1">
                   <button
-                    onClick={() => updateNoteType(noteId, "hour")}
+                    onClick={() => updateNoteType(id, "hour")}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                      noteType === "hour"
+                      timeType === "hour"
                         ? "bg-red-500 text-white shadow-sm"
                         : "text-gray-600 hover:text-gray-800"
                     }`}
@@ -63,9 +63,9 @@ const OptionControls = ({
                     Hour
                   </button>
                   <button
-                    onClick={() => updateNoteType(noteId, "minute")}
+                    onClick={() => updateNoteType(id, "minute")}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                      noteType === "minute"
+                      timeType === "minute"
                         ? "bg-green-500 text-white shadow-sm"
                         : "text-gray-600 hover:text-gray-800"
                     }`}
@@ -89,7 +89,7 @@ const OptionControls = ({
                     step="0.1"
                     value={volume}
                     onChange={(e) =>
-                      updateVolume(noteId, parseFloat(e.target.value))
+                      updateVolume(id, parseFloat(e.target.value))
                     }
                     className="w-20 accent-red-500"
                   />
@@ -107,7 +107,7 @@ const OptionControls = ({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() =>
-                        decrementInterval(noteId, harmonicInterval)
+                        decrementInterval(id, harmonicInterval)
                       }
                       disabled={harmonicInterval <= -24}
                       className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded text-sm font-bold transition-colors"
@@ -122,14 +122,14 @@ const OptionControls = ({
                       value={harmonicInterval}
                       onChange={(e) => {
                         const value = parseInt(e.target.value) || 0;
-                        handleIntervalChange(noteId, value);
+                        handleIntervalChange(id, value);
                       }}
                       className="w-20 h-8 text-center text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
 
                     <button
                       onClick={() =>
-                        incrementInterval(noteId, harmonicInterval)
+                        incrementInterval(id, harmonicInterval)
                       }
                       disabled={harmonicInterval >= 24}
                       className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded text-sm font-bold transition-colors"
