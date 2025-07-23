@@ -1,4 +1,4 @@
-import { DEFAULT_SCALE, generateScale } from "./lib";
+import { DEFAULT_SCALE, generateScale } from "../app/lib";
 import { Gain, Oscillator } from "tone";
 
 // ===== MUSIC THEORY UTILITIES =====
@@ -234,4 +234,4 @@ export const setGainVolume = (gainNode: Gain | null, volume: number): void => {
   if (gainNode) {
     gainNode.gain.rampTo(clampVolume(volume), 0.1);
   }
-};
+}; 

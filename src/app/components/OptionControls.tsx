@@ -1,4 +1,4 @@
-import { AudioNote } from "../hooks/useAudio";
+import { AudioNote } from "../../hooks/useAudio";
 
 interface OptionControlsProps {
   notes: AudioNote[];

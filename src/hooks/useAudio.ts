@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Gain, Oscillator } from "tone";
-import { getOsc, startAudioEngine } from "../audio";
-import { clampVolume, setGainVolume, updateNoteFrequency } from "../utils";
+import { getOsc, startAudioEngine } from "../app/audio";
+import { clampVolume, setGainVolume, updateNoteFrequency } from "../utils/utils";
 import {
   createEffectsChain,
   disposeEffectsChain,
@@ -250,4 +250,4 @@ export const useAudio = (
     updateHarmonicInterval,
     updateNoteType,
   };
-};
+}; 
