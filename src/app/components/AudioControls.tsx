@@ -1,9 +1,11 @@
+import React from "react";
+
 interface AudioControlsProps {
   audioStarted: boolean;
   onToggleAudio: () => void;
 }
 
-const AudioControls = ({
+const AudioControls: React.FC<AudioControlsProps> = ({
   audioStarted,
   onToggleAudio,
 }: AudioControlsProps) => {

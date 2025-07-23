@@ -1,3 +1,4 @@
+import React from "react";
 import { noteLabels } from "@/app/lib"
 
 type ClockFaceProps = {
@@ -11,7 +12,7 @@ export const getHandAngle = (value: number, max: number): number => {
   return (value / max) * 360 - 90;
 };
 
-const ClockFace = ({hours, minutes, seconds, size}: ClockFaceProps) => {
+const ClockFace: React.FC<ClockFaceProps> = ({hours, minutes, seconds, size}) => {
   if (hours == null || minutes == null || seconds == null) return null;
   const hourAngle = getHandAngle(hours + minutes / 60 + seconds / 3600, 12);
   const minuteAngle = getHandAngle(minutes + seconds / 60, 60);

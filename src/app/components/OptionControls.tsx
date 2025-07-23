@@ -1,3 +1,4 @@
+import React from "react";
 import { AudioNote } from "../../hooks/useAudio";
 
 interface OptionControlsProps {
@@ -7,7 +8,7 @@ interface OptionControlsProps {
   updateNoteType: (noteId: string, noteType: "hour" | "minute") => void;
 }
 
-const OptionControls = ({
+const OptionControls: React.FC<OptionControlsProps> = ({
   notes,
   updateVolume,
   updateHarmonicInterval,

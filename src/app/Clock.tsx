@@ -1,3 +1,4 @@
+import React from "react";
 import ClockFace from "./components/ClockFace";
 import OptionControls from "./components/OptionControls";
 import AudioControls from "./components/AudioControls";
@@ -6,7 +7,7 @@ import AppHeader from "./components/AppHeader";
 import { useTime } from "../hooks/useTime";
 import { useAudio } from "../hooks/useAudio";
 
-const Clock = () => {
+const Clock: React.FC = () => {
   const { time, mounted, selectedTimezone, setSelectedTimezone } = useTime();
   const {
     audioStarted,
