@@ -69,7 +69,7 @@ export const useAudio = (
   time: Date | null,
   mounted: boolean
 ): UseAudioReturn => {
-  const [audioState, setAudioState] = useState({
+  const [audioState, setAudioState] = useState<{ started: boolean; notes: AudioNote[] }>({
     started: false,
     notes: audioConfig.notes,
   });
