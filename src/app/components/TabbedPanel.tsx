@@ -51,9 +51,9 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
   };
 
   return (
-    <div className="border rounded-lg bg-white shadow-sm p-0 w-full max-w-md mx-auto flex flex-col min-h-[420px] h-full">
+    <div className="border rounded-lg bg-white shadow-sm p-0 w-full max-w-md mx-auto flex flex-col h-136">
       {/* Tab Content */}
-      <div className="flex-1 p-6 bg-white min-h-[180px] flex flex-col justify-start rounded-t-lg">
+      <div className="flex-1 p-6 bg-white flex flex-col justify-start rounded-t-lg overflow-y-auto">
         {activeTab === "options" && <div className="flex-1">{children}</div>}
         {activeTab === "instructions" && (
           <div className="flex-1">
