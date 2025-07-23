@@ -1,4 +1,5 @@
-import React, { useState, ReactNode } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface TabbedPanelProps {
   children: ReactNode; // Content for the Options tab
@@ -11,8 +12,43 @@ const TABS = [
   { key: "about", label: "Who did this?" },
 ];
 
+const TAB_KEYS = TABS.map(tab => tab.key);
+
 export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
-  const [activeTab, setActiveTab] = useState<string>("options");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get initial tab from query string, default to 'options'
+  const getInitialTab = (): string => {
+    const tabParam = searchParams.get("tab");
+    return tabParam && TAB_KEYS.includes(tabParam) ? tabParam : "options";
+  };
+
+  const [activeTab, setActiveTab] = useState<string>(getInitialTab());
+
+  // Update activeTab if the query string changes (e.g. browser navigation)
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && TAB_KEYS.includes(tabParam) && tabParam !== activeTab) {
+      setActiveTab(tabParam);
+    }
+    if (!tabParam && activeTab !== "options") {
+      setActiveTab("options");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // When tab changes, update the query string (shallow push)
+  const handleTabClick = (tabKey: string) => {
+    setActiveTab(tabKey);
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    if (tabKey === "options") {
+      params.delete("tab");
+    } else {
+      params.set("tab", tabKey);
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
 
   return (
     <div className="border rounded-lg bg-white shadow-sm p-0 w-full max-w-md mx-auto flex flex-col min-h-[420px] h-full">
@@ -49,7 +85,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
                 ? "border-blue-500 text-blue-600 bg-white"
                 : "border-transparent text-gray-600 hover:text-blue-500 hover:bg-gray-100"}
             `}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => handleTabClick(tab.key)}
             aria-selected={activeTab === tab.key}
             role="tab"
             tabIndex={activeTab === tab.key ? 0 : -1}
