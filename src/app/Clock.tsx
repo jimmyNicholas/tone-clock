@@ -4,6 +4,7 @@ import OptionControls from "./components/OptionControls";
 import AudioControls from "./components/AudioControls";
 import TimeDisplay from "./components/TimeDisplay";
 import AppHeader from "./components/AppHeader";
+import TabbedPanel from "./components/TabbedPanel";
 import { useTime } from "../hooks/useTime";
 import { useAudio } from "../hooks/useAudio";
 
@@ -38,12 +39,14 @@ const Clock: React.FC = () => {
         <div className="grid grid-cols-[2fr_1fr] mt-6 text-lg font-semibold text-gray-800">
           <ClockFace {...clockFaceProps} />
 
-          <OptionControls
-            notes={notes}
-            updateVolume={updateVolume}
-            updateHarmonicInterval={updateHarmonicInterval}
-            updateNoteType={updateNoteType}
-          />
+          <TabbedPanel>
+            <OptionControls
+              notes={notes}
+              updateVolume={updateVolume}
+              updateHarmonicInterval={updateHarmonicInterval}
+              updateNoteType={updateNoteType}
+            />
+          </TabbedPanel>
         </div>
       </div>
 
