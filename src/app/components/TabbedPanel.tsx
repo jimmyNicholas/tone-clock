@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import InstructionsContent from "./InstructionsContent";
 
 interface TabbedPanelProps {
   children: ReactNode; // Content for the Options tab
@@ -58,7 +59,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
         {activeTab === "instructions" && (
           <div className="flex-1">
             <h2 className="font-semibold mb-2">Instructions</h2>
-            <p className="text-gray-700 text-sm">How to use the Tone Clock will go here.</p>
+            <InstructionsContent />
           </div>
         )}
         {activeTab === "history" && (
