@@ -1,3 +1,5 @@
+import React from "react";
+
 interface TimeDisplayProps {
   time: Date | null;
   selectedTimezone: number;
@@ -16,7 +18,7 @@ const generateTimezoneOptions = () => {
   return options;
 };
 
-const TimeDisplay = ({
+const TimeDisplay: React.FC<TimeDisplayProps> = ({
   time,
   selectedTimezone,
   onTimezoneChange,

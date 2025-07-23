@@ -104,4 +104,4 @@ export const CLEAN_PRESET: EffectsConfig = {
   chorusDepth: 0,
   tremoloFrequency: 0,
   tremoloDepth: 0,
-};
+}; 

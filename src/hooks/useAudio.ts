@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Gain, Oscillator } from "tone";
-import { getOsc, startAudioEngine } from "../audio";
-import { clampVolume, setGainVolume, updateNoteFrequency } from "../utils";
+import { getOsc, startAudioEngine } from "../app/audio";
+import { clampVolume, setGainVolume, updateNoteFrequency } from "../utils/utils";
 import {
   createEffectsChain,
   disposeEffectsChain,
@@ -69,7 +69,7 @@ export const useAudio = (
   time: Date | null,
   mounted: boolean
 ): UseAudioReturn => {
-  const [audioState, setAudioState] = useState({
+  const [audioState, setAudioState] = useState<{ started: boolean; notes: AudioNote[] }>({
     started: false,
     notes: audioConfig.notes,
   });
@@ -250,4 +250,4 @@ export const useAudio = (
     updateHarmonicInterval,
     updateNoteType,
   };
-};
+}; 

@@ -13,7 +13,7 @@ interface UseTimeReturn {
  */
 export const useTime = (): UseTimeReturn => {
   const [rawTime, setRawTime] = useState<Date | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState<boolean>(false);
   const [selectedTimezone, setSelectedTimezone] = useState<number>(0);
 
   // Set default timezone on mount
@@ -69,4 +69,4 @@ export const useTime = (): UseTimeReturn => {
     selectedTimezone,
     setSelectedTimezone,
   };
-};
+}; 

@@ -1,4 +1,5 @@
-import { AudioNote } from "../hooks/useAudio";
+import React from "react";
+import { AudioNote } from "../../hooks/useAudio";
 
 interface OptionControlsProps {
   notes: AudioNote[];
@@ -7,7 +8,7 @@ interface OptionControlsProps {
   updateNoteType: (noteId: string, noteType: "hour" | "minute") => void;
 }
 
-const OptionControls = ({
+const OptionControls: React.FC<OptionControlsProps> = ({
   notes,
   updateVolume,
   updateHarmonicInterval,
@@ -51,9 +52,11 @@ const OptionControls = ({
 
               {/* Note Type Toggle Switch */}
               <div className="flex flex-col items-center gap-2">
-                <div className="flex bg-gray-200 rounded-full p-1">
+                <div className="flex bg-gray-200 rounded-full p-1" role="group" aria-label={`Select note type for ${name}`}>
                   <button
                     onClick={() => updateNoteType(id, "hour")}
+                    aria-pressed={timeType === "hour"}
+                    aria-label={`Set ${name} to hour`}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                       timeType === "hour"
                         ? "bg-red-500 text-white shadow-sm"
@@ -64,6 +67,8 @@ const OptionControls = ({
                   </button>
                   <button
                     onClick={() => updateNoteType(id, "minute")}
+                    aria-pressed={timeType === "minute"}
+                    aria-label={`Set ${name} to minute`}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                       timeType === "minute"
                         ? "bg-green-500 text-white shadow-sm"
@@ -91,6 +96,7 @@ const OptionControls = ({
                     onChange={(e) =>
                       updateVolume(id, parseFloat(e.target.value))
                     }
+                    aria-label={`Volume for ${name}`}
                     className="w-20 accent-red-500"
                   />
                   <span className="text-xs text-gray-500">🔊</span>
@@ -110,6 +116,7 @@ const OptionControls = ({
                         decrementInterval(id, harmonicInterval)
                       }
                       disabled={harmonicInterval <= -24}
+                      aria-label={`Decrease harmonic interval for ${name}`}
                       className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded text-sm font-bold transition-colors"
                     >
                       −
@@ -124,6 +131,7 @@ const OptionControls = ({
                         const value = parseInt(e.target.value) || 0;
                         handleIntervalChange(id, value);
                       }}
+                      aria-label={`Harmonic interval for ${name}`}
                       className="w-20 h-8 text-center text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
 
@@ -132,6 +140,7 @@ const OptionControls = ({
                         incrementInterval(id, harmonicInterval)
                       }
                       disabled={harmonicInterval >= 24}
+                      aria-label={`Increase harmonic interval for ${name}`}
                       className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded text-sm font-bold transition-colors"
                     >
                       +
