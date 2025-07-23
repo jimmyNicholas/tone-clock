@@ -13,6 +13,8 @@ const AudioControls: React.FC<AudioControlsProps> = ({
     <div className="flex gap-4 justify-center mb-6">
       <button
         onClick={onToggleAudio}
+        aria-pressed={audioStarted}
+        aria-label={audioStarted ? "Disable sound" : "Enable sound"}
         className={`px-6 py-2 rounded-lg transition-colors ${
           audioStarted
             ? "bg-orange-500 text-white hover:bg-orange-600"
