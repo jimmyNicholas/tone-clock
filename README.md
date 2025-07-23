@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tone Clock
 
-## Getting Started
+A musical clock web app that maps the current time to musical notes and intervals, allowing users to listen to the passage of time. Built with Next.js, React, and Tone.js.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Architecture Overview
+- **Framework:** Next.js (App Router, TypeScript, Tailwind CSS)
+- **Component Structure:**
+  - `Clock` (main container)
+  - `ClockFace` (SVG clock with note labels)
+  - `AudioControls`, `OptionControls`, `TimeDisplay`, `AppHeader`
+- **Hooks:**
+  - `useAudio` (manages Tone.js audio, effects, and state)
+  - `useTime` (manages time, interval updates, and timezone)
+- **Utils:**
+  - Music theory helpers, audio effect chains, and value clamping
+- **Testing:**
+  - Vitest for unit and hook tests, with coverage reporting enabled
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup & Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Install dependencies:**
+   ```bash
+   npm install
+   # or yarn, pnpm, bun
+   ```
+2. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+3. **Run tests and check coverage:**
+   ```bash
+   npx vitest run --coverage
+   ```
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key Design Decisions
+- **Hooks & State:** Custom hooks (`useAudio`, `useTime`) encapsulate logic for reusability and separation of concerns.
+- **TypeScript:** Strict typing throughout, including explicit generics for all state and props.
+- **Accessibility:** All interactive elements have ARIA labels; SVG clock face is labeled for screen readers.
+- **Performance:** Time updates every 100ms for smooth glissando; interval is configurable for future needs.
+- **Audio Resource Management:** All Tone.js resources are disposed and refs nulled on unmount to prevent leaks.
+- **Testing:** Focused on hooks and core logic, aiming for 80%+ coverage.
+- **No Global State Manager:** Context/state manager omitted for simplicity, as the app is small and prop drilling is minimal.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
