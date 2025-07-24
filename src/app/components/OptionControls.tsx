@@ -1,5 +1,6 @@
 import React from "react";
 import { AudioNote } from "../../hooks/useAudio";
+import { FiVolumeX, FiVolume2 } from 'react-icons/fi';
 
 interface OptionControlsProps {
   notes: AudioNote[];
@@ -86,7 +87,7 @@ const OptionControls: React.FC<OptionControlsProps> = ({
                   Volume
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">🔇</span>
+                  <FiVolumeX className="text-gray-500" aria-label="Mute" />
                   <input
                     type="range"
                     min="0"
@@ -99,7 +100,7 @@ const OptionControls: React.FC<OptionControlsProps> = ({
                     aria-label={`Volume for ${name}`}
                     className="w-20 accent-red-500"
                   />
-                  <span className="text-xs text-gray-500">🔊</span>
+                  <FiVolume2 className="text-gray-500" aria-label="Loud" />
                 </div>
                 <span className="text-xs text-gray-600">
                   {Math.round(volume * 100)}%
