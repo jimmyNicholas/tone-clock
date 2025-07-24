@@ -114,4 +114,38 @@ describe("TabbedPanel", () => {
       expect(liveRegion?.textContent).toMatch(/who did this\? tab selected/i);
     }, { timeout: 1000 });
   });
+
+  it("falls back to Options tab if query string is invalid", async () => {
+    // Simulate an invalid tab slug
+    currentTab = "notarealtab";
+    render(<TabbedPanel><DummyOptions /></TabbedPanel>);
+    const optionsTab = screen.getByRole("tab", { name: /options/i });
+    expect(optionsTab).toHaveAttribute("aria-selected", "true");
+    const panels = screen.getAllByRole("tabpanel");
+    const visiblePanel = panels.find(panel => !panel.hasAttribute("hidden"));
+    expect(visiblePanel).toHaveTextContent(/options content/i);
+  });
+
+  it("shows correct tab if query string is valid", async () => {
+    // Simulate a valid tab slug
+    currentTab = "history";
+    render(<TabbedPanel><DummyOptions /></TabbedPanel>);
+    const historyTab = screen.getByRole("tab", { name: /history/i });
+    expect(historyTab).toHaveAttribute("aria-selected", "true");
+    const panels = screen.getAllByRole("tabpanel");
+    const visiblePanel = panels.find(panel => !panel.hasAttribute("hidden"));
+    expect(visiblePanel).toHaveTextContent(/history/i);
+  });
+
+  it("wraps keyboard navigation from last to first tab and vice versa", async () => {
+    render(<TabbedPanel><DummyOptions /></TabbedPanel>);
+    const user = userEvent.setup();
+    const tabs = screen.getAllByRole("tab");
+    tabs[tabs.length - 1].focus();
+    await user.keyboard("{arrowright}");
+    expect(tabs[0]).toHaveFocus();
+    tabs[0].focus();
+    await user.keyboard("{arrowleft}");
+    expect(tabs[tabs.length - 1]).toHaveFocus();
+  });
 }); 
