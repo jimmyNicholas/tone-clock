@@ -52,24 +52,24 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
   };
 
   return (
-    <div className="border rounded-lg bg-white shadow-sm p-0 w-full max-w-md mx-auto flex flex-col h-136">
+    <div className="border rounded-lg bg-white shadow-sm p-0 w-full max-w-lg mx-auto flex flex-col h-136">
       {/* Tab Content */}
-      <div className="flex-1 p-6 bg-white flex flex-col justify-start rounded-t-lg overflow-y-auto">
-        {activeTab === "options" && <div className="flex-1">{children}</div>}
+      <div className="flex-1 p-6 pr-8 mx-0.5 bg-white flex flex-col justify-start rounded-t-lg overflow-y-scroll">
+        {activeTab === "options" && <div className="flex-1 w-96">{children}</div>}
         {activeTab === "instructions" && (
-          <div className="flex-1">
+          <div className="flex-1 w-96">
             <h2 className="font-semibold mb-2">Instructions</h2>
             <InstructionsContent />
           </div>
         )}
         {activeTab === "history" && (
-          <div className="flex-1">
+          <div className="flex-1 w-96">
             <h2 className="font-semibold mb-2">History</h2>
             <p className="text-gray-700 text-sm">A brief history of the project will go here.</p>
           </div>
         )}
         {activeTab === "about" && (
-          <div className="flex-1">
+          <div className="flex-1 w-96">
             <h2 className="font-semibold mb-2">Who did this?</h2>
             <p className="text-gray-700 text-sm">Info about the creator will go here.</p>
           </div>
