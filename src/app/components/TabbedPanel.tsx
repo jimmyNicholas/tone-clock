@@ -29,11 +29,20 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTab());
   const firstTabRef = useRef<HTMLButtonElement | null>(null);
+  const [liveMessage, setLiveMessage] = useState<string>("");
 
   useEffect(() => {
     // Move focus to the first tab on mount
     firstTabRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    // Announce tab changes for screen readers
+    const currentTab = TABS.find(tab => tab.key === activeTab);
+    if (currentTab) {
+      setLiveMessage(`${currentTab.label} tab selected`);
+    }
+  }, [activeTab]);
 
   // Update activeTab if the query string changes (e.g. browser navigation)
   useEffect(() => {
@@ -61,6 +70,8 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
 
   return (
     <div className="border rounded-lg bg-white shadow-sm p-0 w-full max-w-lg mx-auto flex flex-col h-136">
+      {/* ARIA live region for screen reader announcements */}
+      <div aria-live="polite" aria-atomic="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>{liveMessage}</div>
       {/* Tab Content */}
       <div className="flex-1 p-6 pr-8 mx-0.5 bg-white flex flex-col justify-start rounded-t-lg overflow-y-scroll">
         {TABS.map((tab) => (
