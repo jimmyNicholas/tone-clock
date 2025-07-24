@@ -4,6 +4,34 @@ A musical clock web app that maps the current time to musical notes and interval
 
 ---
 
+## How to Use
+
+- **What is it?**
+  
+  Tone Clock is an innovative audio timepiece that transforms the current time into a continuous musical soundscape. The app maps the positions of clock hands (hour and minute) to musical pitches, creating an ambient sonic representation of time that changes throughout the day.
+
+- **How do I start the audio?**
+  
+  Click the **Enable Sound** button at the top of the interface to activate audio playback. This must be done due to browser autoplay restrictions—the app cannot start playing sound automatically.
+
+- **What does the hour and minute toggle do?**
+  
+  Each of the four tones can be set to track either the hour hand or minute hand position on the clock. When set to "Hour," the tone's pitch changes based on the hour hand's position (completing a full cycle every 12 hours). When set to "Minute," the tone's pitch changes based on the minute hand's position (completing a full cycle every 60 minutes). This allows you to create complex harmonic relationships as different tones track different aspects of time.
+
+- **How do I adjust the volume?**
+  
+  Each tone has its own volume slider (0-100%) allowing you to balance the four tones to create your desired mix. Use the speaker icons or drag the sliders to adjust individual tone volumes.
+
+- **How do I adjust the pitch?**
+  
+  The + and - buttons adjust each tone's base pitch in semitones. This lets you set different tones to different musical intervals, creating harmonies and chord progressions that evolve with time. The display shows the offset from the base note (e.g., "+7 semitones" creates a perfect fifth interval).
+
+- **How do I change the timezone?**
+  
+  Use the timezone dropdown to set your local time zone (GMT -12 to GMT +12), ensuring the musical representation accurately reflects your current local time.
+
+---
+
 ## Architecture Overview
 - **Framework:** Next.js (App Router, TypeScript, Tailwind CSS)
 - **Component Structure:**
