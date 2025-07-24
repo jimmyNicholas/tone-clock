@@ -60,7 +60,6 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
         {activeTab === "options" && <div className="flex-1 w-96">{children}</div>}
         {activeTab === "instructions" && (
           <div className="flex-1 w-96">
-            <h2 className="font-semibold mb-2">Instructions</h2>
             <InstructionsContent />
           </div>
         )}
