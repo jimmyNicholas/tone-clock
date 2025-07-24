@@ -2,6 +2,7 @@ import React, { useState, useEffect, ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import InstructionsContent from "./InstructionsContent";
 import HistoryContent from "./HistoryContent";
+import AboutContent from "./AboutContent";
 
 interface TabbedPanelProps {
   children: ReactNode; // Content for the Options tab
@@ -67,10 +68,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
           <HistoryContent />
         )}
         {activeTab === "about" && (
-          <div className="flex-1 w-96">
-            <h2 className="font-semibold mb-2">Who did this?</h2>
-            <p className="text-gray-700 text-sm">Info about the creator will go here.</p>
-          </div>
+          <AboutContent />
         )}
       </div>
 
