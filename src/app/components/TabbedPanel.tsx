@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { useState, useEffect, useRef, ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AboutContent from "./InfoPanel/AboutContent";
 import HistoryContent from "./InfoPanel/HistoryContent";
@@ -28,6 +28,12 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
   };
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTab());
+  const firstTabRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    // Move focus to the first tab on mount
+    firstTabRef.current?.focus();
+  }, []);
 
   // Update activeTab if the query string changes (e.g. browser navigation)
   useEffect(() => {
@@ -127,6 +133,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
                 handleTabClick(TABS[TABS.length - 1].key);
               }
             }}
+            ref={idx === 0 ? firstTabRef : undefined}
           >
             {tab.label}
           </button>
