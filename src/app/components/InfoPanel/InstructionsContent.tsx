@@ -46,12 +46,7 @@ const instructions: InstructionSection[] = [
     id: "timezone",
     title: "How do I change the timezone?",
     content: (
-      <p><span className="font-semibold">Timezone Selection:</span> Use the timezone dropdown to set your local time zone (GMT -12 to GMT +12), ensuring the musical representation accurately reflects your current local time.
-        <br />
-        <select className="w-full mt-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option>Example: GMT +0</option>
-        </select>
-      </p>
+      <p><span className="font-semibold">Timezone Selection:</span> Use the timezone dropdown to set your local time zone (GMT -12 to GMT +12), ensuring the musical representation accurately reflects your current local time.</p>
     ),
   },
 ];
@@ -77,7 +72,7 @@ const InstructionsContent: React.FC = () => {
           </button>
           <div
             id={`section-content-${section.id}`}
-            className={`w-full overflow-hidden transition-all duration-200 ${openIndex === idx ? 'max-h-96 py-2 px-4' : 'max-h-0 py-0 px-4'}`}
+            className={`overflow-hidden transition-all duration-200 ${openIndex === idx ? 'max-h-96 py-2 px-4' : 'max-h-0 py-0 px-4'}`}
             style={{
               opacity: openIndex === idx ? 1 : 0,
               pointerEvents: openIndex === idx ? 'auto' : 'none',
@@ -85,7 +80,7 @@ const InstructionsContent: React.FC = () => {
             aria-hidden={openIndex !== idx}
           >
             {openIndex === idx && (
-              <div className="text-gray-700 text-sm w-full break-words">
+              <div className="text-gray-700 text-sm">
                 {section.content}
               </div>
             )}
