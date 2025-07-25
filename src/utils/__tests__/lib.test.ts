@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { SCALE_PATTERNS, generateScale, DEFAULT_SCALE } from '../lib'
+import { SCALE_PATTERNS, generateScale, DEFAULT_SCALE } from "../lib"
 
 describe('Music Library', () => {
   it('should generate chromatic scale correctly', () => {

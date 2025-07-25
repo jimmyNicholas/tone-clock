@@ -1,5 +1,5 @@
 import React from "react";
-import { noteLabels } from "@/app/lib"
+import { noteLabels } from "@/utils/lib"
 
 type ClockFaceProps = {
     hours: number | null,
