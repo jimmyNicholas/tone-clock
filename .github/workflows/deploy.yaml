@@ -28,8 +28,14 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
-      
-      - name: Build
+
+      - name: Run unit and accessibility tests
+        run: npm test
+
+      - name: Build (must pass before deploy)
+        run: npm run build
+
+      - name: Deploy
         run: npm run deploy
       
       - name: Setup Pages
