@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Gain, Oscillator } from "tone";
-import { getOsc, startAudioEngine } from "../app/audio";
+import { getOsc, startAudioEngine } from "../utils/audio";
 import { clampVolume, setGainVolume, updateNoteFrequency } from "../utils/utils";
 import {
   createEffectsChain,
