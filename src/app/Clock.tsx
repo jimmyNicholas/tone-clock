@@ -30,12 +30,10 @@ const Clock: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen min-w-screen bg-gradient-to-br from-purple-100 to-blue-100 p-8">
       <div className="mb-8 text-center">
         <AppHeader />
-
         <AudioControls
           audioStarted={audioStarted}
           onToggleAudio={toggleAudio}
         />
-
         <div className="grid grid-cols-[2fr_1fr] mt-6 text-lg font-semibold text-gray-800">
           <ClockFace {...clockFaceProps} />
           <Suspense fallback={<div>Loading panel...</div>}>
@@ -50,7 +48,6 @@ const Clock: React.FC = () => {
           </Suspense>
         </div>
       </div>
-
       {/* Time Display */}
       <TimeDisplay
         time={time}
