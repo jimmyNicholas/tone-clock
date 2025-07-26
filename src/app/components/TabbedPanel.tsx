@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AboutContent from "./InfoPanel/AboutContent";
-import HistoryContent from "./InfoPanel/HistoryContent";
-import InstructionsContent from "./InfoPanel/InstructionsContent";
+import AboutContent from "@/app/components/InfoPanel/AboutContent";
+import HistoryContent from "@/app/components/InfoPanel/HistoryContent";
+import InstructionsContent from "@/app/components/InfoPanel/InstructionsContent";
 
 interface TabbedPanelProps {
   children: ReactNode; // Content for the Options tab

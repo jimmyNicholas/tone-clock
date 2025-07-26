@@ -1,18 +1,20 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Gain, Oscillator } from "tone";
-import { getOsc, startAudioEngine } from "../app/audio";
-import { clampVolume, setGainVolume, updateNoteFrequency } from "../utils/utils";
+import { getOsc, startAudioEngine } from "@/utils/audio";
+import { clampVolume, setGainVolume, updateNoteFrequency } from "@/utils/utils";
 import {
   createEffectsChain,
   disposeEffectsChain,
   EffectsChain,
   CLEAN_PRESET,
-} from "../utils/effects";
+} from "@/utils/effects";
+
+export type TimeType = "hour" | "minute";
 
 export interface AudioNote {
   id: string;
   name: string;
-  timeType: "hour" | "minute";
+  timeType: TimeType;
   volume: number;
   harmonicInterval: number;
 }
