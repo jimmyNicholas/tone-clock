@@ -1,7 +1,7 @@
 import React from "react";
-import InfoHeader from "./InfoHeader";
-import InfoParagraph from "./InfoParagraph";
-import InfoLink from "./InfoLink";
+import InfoHeader from "./UI/InfoHeader";
+import InfoParagraph from "./UI/InfoParagraph";
+import InfoLink from "./UI/InfoLink";
 
 const AboutContent: React.FC = () => (
   <div className="flex-1 w-96 text-left space-y-4 text-sm">

@@ -2,19 +2,19 @@ import React from "react";
 import { AudioNote, TimeType } from "@/hooks/useAudio";
 import { FiVolumeX, FiVolume2 } from 'react-icons/fi';
 
-interface OptionControlsProps {
+interface AudioControlsPanelProps {
   notes: AudioNote[];
   updateVolume: (noteId: string, newVolume: number) => void;
   updateHarmonicInterval: (noteId: string, interval: number) => void;
   updateNoteType: (noteId: string, noteType: TimeType) => void;
 }
 
-const OptionControls: React.FC<OptionControlsProps> = ({
+const AudioControlsPanel: React.FC<AudioControlsPanelProps> = ({
   notes,
   updateVolume,
   updateHarmonicInterval,
   updateNoteType,
-}: OptionControlsProps) => {
+}: AudioControlsPanelProps) => {
 
   const handleIntervalChange = (noteId: string, newInterval: number) => {
     // Clamp the value between -24 and +24
@@ -165,4 +165,4 @@ const OptionControls: React.FC<OptionControlsProps> = ({
   );
 };
 
-export default OptionControls;
+export default AudioControlsPanel;

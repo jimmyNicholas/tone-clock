@@ -1,7 +1,7 @@
 import React from "react";
-import InfoHeader from "./InfoHeader";
-import InfoAccordion from "./InfoAccordion";
-import InfoParagraph from "./InfoParagraph";
+import InfoHeader from "./UI/InfoHeader";
+import InfoAccordion from "./UI/InfoAccordion";
+import InfoParagraph from "./UI/InfoParagraph";
 
 const instructions = [
   {
