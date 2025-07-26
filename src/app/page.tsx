@@ -1,13 +1,13 @@
 "use client";
 import React, { Suspense } from "react";
-import ClockFace from "./components/ClockFace";
-import OptionControls from "./components/OptionControls";
-import AudioControls from "./components/AudioControls";
-import TimeDisplay from "./components/TimeDisplay";
-import AppHeader from "./components/AppHeader";
-import TabbedPanel from "./components/TabbedPanel";
-import { useTime } from "../hooks/useTime";
-import { useAudio } from "../hooks/useAudio";
+import ClockFace from "@/app/components/ClockFace";
+import OptionControls from "@/app/components/OptionControls";
+import AudioControls from "@/app/components/AudioControls";
+import TimeDisplay from "@/app/components/TimeDisplay";
+import AppHeader from "@/app/components/AppHeader";
+import TabbedPanel from "@/app/components/TabbedPanel";
+import { useTime } from "@/hooks/useTime";
+import { useAudio } from "@/hooks/useAudio";
 
 export default function Home() {
   const { time, mounted, selectedTimezone, setSelectedTimezone } = useTime();

@@ -1,5 +1,5 @@
 import React from "react";
-import { AudioNote, TimeType } from "../../hooks/useAudio";
+import { AudioNote, TimeType } from "@/hooks/useAudio";
 import { FiVolumeX, FiVolume2 } from 'react-icons/fi';
 
 interface OptionControlsProps {

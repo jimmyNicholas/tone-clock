@@ -1,4 +1,4 @@
-import { DEFAULT_SCALE, generateScale } from "./lib";
+import { DEFAULT_SCALE, generateScale } from "@/utils/lib";
 import { Gain, Oscillator } from "tone";
 
 // ===== MUSIC THEORY UTILITIES =====
