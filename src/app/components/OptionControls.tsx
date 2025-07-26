@@ -1,12 +1,12 @@
 import React from "react";
-import { AudioNote } from "../../hooks/useAudio";
+import { AudioNote, TimeType } from "../../hooks/useAudio";
 import { FiVolumeX, FiVolume2 } from 'react-icons/fi';
 
 interface OptionControlsProps {
   notes: AudioNote[];
   updateVolume: (noteId: string, newVolume: number) => void;
   updateHarmonicInterval: (noteId: string, interval: number) => void;
-  updateNoteType: (noteId: string, noteType: "hour" | "minute") => void;
+  updateNoteType: (noteId: string, noteType: TimeType) => void;
 }
 
 const OptionControls: React.FC<OptionControlsProps> = ({
