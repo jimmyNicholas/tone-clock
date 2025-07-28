@@ -1,30 +1,27 @@
 import React, { useState, useEffect, useRef, ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AboutContent from "@/app/components/InfoPanel/AboutContent";
-import HistoryContent from "@/app/components/InfoPanel/HistoryContent";
-import InstructionsContent from "@/app/components/InfoPanel/InstructionsContent";
 
-interface TabbedPanelProps {
-  children: ReactNode; // Content for the Options tab
+export interface TabConfig {
+  key: string;
+  label: string;
+  content: ReactNode;
 }
 
-const TABS = [
-  { key: "options", label: "Options" },
-  { key: "instructions", label: "Instructions" },
-  { key: "history", label: "History" },
-  { key: "about", label: "Who did this?" },
-];
+interface TabbedPanelProps {
+  tabs: TabConfig[];
+  defaultTab: string;
+}
 
-const TAB_KEYS = TABS.map(tab => tab.key);
-
-export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
+export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get initial tab from query string, default to 'options'
+  const TAB_KEYS = tabs.map(tab => tab.key);
+
+  // Get initial tab from query string, default to defaultTab
   const getInitialTab = (): string => {
     const tabParam = searchParams.get("tab");
-    return tabParam && TAB_KEYS.includes(tabParam) ? tabParam : "options";
+    return tabParam && TAB_KEYS.includes(tabParam) ? tabParam : defaultTab;
   };
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTab());
@@ -32,35 +29,31 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
   const [liveMessage, setLiveMessage] = useState<string>("");
 
   useEffect(() => {
-    // Move focus to the first tab on mount
     firstTabRef.current?.focus();
   }, []);
 
   useEffect(() => {
-    // Announce tab changes for screen readers
-    const currentTab = TABS.find(tab => tab.key === activeTab);
+    const currentTab = tabs.find(tab => tab.key === activeTab);
     if (currentTab) {
       setLiveMessage(`${currentTab.label} tab selected`);
     }
-  }, [activeTab]);
+  }, [activeTab, tabs]);
 
-  // Update activeTab if the query string changes (e.g. browser navigation)
   useEffect(() => {
     const tabParam = searchParams.get("tab");
     if (tabParam && TAB_KEYS.includes(tabParam) && tabParam !== activeTab) {
       setActiveTab(tabParam);
     }
-    if (!tabParam && activeTab !== "options") {
-      setActiveTab("options");
+    if (!tabParam && activeTab !== defaultTab) {
+      setActiveTab(defaultTab);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // When tab changes, update the query string (shallow push)
   const handleTabClick = (tabKey: string) => {
     setActiveTab(tabKey);
     const params = new URLSearchParams(Array.from(searchParams.entries()));
-    if (tabKey === "options") {
+    if (tabKey === defaultTab) {
       params.delete("tab");
     } else {
       params.set("tab", tabKey);
@@ -74,7 +67,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
       <div aria-live="polite" aria-atomic="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>{liveMessage}</div>
       {/* Tab Content */}
       <div className="flex-1 p-6 pr-8 mx-0.5 bg-white flex flex-col justify-start rounded-t-lg overflow-y-scroll">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <div
             key={tab.key}
             id={`tabpanel-${tab.key}`}
@@ -82,38 +75,20 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
             aria-labelledby={`tab-${tab.key}`}
             hidden={activeTab !== tab.key}
             tabIndex={0}
-            className={activeTab === tab.key ? "flex-1 w-96" : "hidden"}
+            className={activeTab === tab.key ? "flex-1 min-w-96" : "hidden"}
           >
-            {tab.key === "options" && activeTab === "options" && <div className="flex-1 w-96">{children}</div>}
-            {tab.key === "instructions" && activeTab === "instructions" && (
-              <div className="flex-1 w-96">
-                <h2 className="font-semibold mb-2">Instructions</h2>
-                <InstructionsContent />
-              </div>
-            )}
-            {tab.key === "history" && activeTab === "history" && (
-              <div className="flex-1 w-96">
-                <h2 className="font-semibold mb-2">History</h2>
-                <HistoryContent />
-              </div>
-            )}
-            {tab.key === "about" && activeTab === "about" && (
-              <div className="flex-1 w-96">
-                <h2 className="font-semibold mb-2">Who did this?</h2>
-                <AboutContent />
-              </div>
-            )}
+            {tab.content}
           </div>
         ))}
       </div>
 
       {/* Tab Navigation */}
       <nav
-        className="flex border-t bg-gray-50 rounded-b-lg overflow-x-auto"
+        className="flex border-t bg-gray-50 rounded-b-lg overflow-x-auto whitespace-nowrap"
         role="tablist"
         aria-label="Information panel tabs"
       >
-        {TABS.map((tab, idx) => (
+        {tabs.map((tab, idx) => (
           <button
             key={tab.key}
             id={`tab-${tab.key}`}
@@ -126,22 +101,22 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ children }) => {
             onKeyDown={(e) => {
               if (e.key === "ArrowRight") {
                 e.preventDefault();
-                const next = (idx + 1) % TABS.length;
-                document.getElementById(`tab-${TABS[next].key}`)?.focus();
-                handleTabClick(TABS[next].key);
+                const next = (idx + 1) % tabs.length;
+                document.getElementById(`tab-${tabs[next].key}`)?.focus();
+                handleTabClick(tabs[next].key);
               } else if (e.key === "ArrowLeft") {
                 e.preventDefault();
-                const prev = (idx - 1 + TABS.length) % TABS.length;
-                document.getElementById(`tab-${TABS[prev].key}`)?.focus();
-                handleTabClick(TABS[prev].key);
+                const prev = (idx - 1 + tabs.length) % tabs.length;
+                document.getElementById(`tab-${tabs[prev].key}`)?.focus();
+                handleTabClick(tabs[prev].key);
               } else if (e.key === "Home") {
                 e.preventDefault();
-                document.getElementById(`tab-${TABS[0].key}`)?.focus();
-                handleTabClick(TABS[0].key);
+                document.getElementById(`tab-${tabs[0].key}`)?.focus();
+                handleTabClick(tabs[0].key);
               } else if (e.key === "End") {
                 e.preventDefault();
-                document.getElementById(`tab-${TABS[TABS.length - 1].key}`)?.focus();
-                handleTabClick(TABS[TABS.length - 1].key);
+                document.getElementById(`tab-${tabs[tabs.length - 1].key}`)?.focus();
+                handleTabClick(tabs[tabs.length - 1].key);
               }
             }}
             ref={idx === 0 ? firstTabRef : undefined}

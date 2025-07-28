@@ -6,17 +6,13 @@ expect.extend(matchers);
 import React from 'react';
 import { render } from '@testing-library/react';
 import { axe } from 'vitest-axe';
-import OptionControls from '../OptionControls';
+import AudioControlsPanel from '../AudioControlsPanel';
 
-const notes = [
-  { id: '1', name: 'C', volume: 0.5, harmonicInterval: 0, timeType: 'hour' as const }
-];
-
-describe('OptionControls accessibility', () => {
+describe('AudioControlsPanel accessibility', () => {
   it('has no accessibility violations', async () => {
     const { container } = render(
-      <OptionControls
-        notes={notes}
+      <AudioControlsPanel
+        notes={[]}
         updateVolume={() => {}}
         updateHarmonicInterval={() => {}}
         updateNoteType={() => {}}

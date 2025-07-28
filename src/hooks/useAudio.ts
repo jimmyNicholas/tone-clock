@@ -1,13 +1,62 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { Gain, Oscillator } from "tone";
+import {
+  Chorus,
+  Compressor,
+  Filter,
+  Gain,
+  Oscillator,
+  Reverb,
+  Tremolo,
+} from "tone";
 import { getOsc, startAudioEngine } from "@/utils/audio";
 import { clampVolume, setGainVolume, updateNoteFrequency } from "@/utils/utils";
-import {
-  createEffectsChain,
-  disposeEffectsChain,
-  EffectsChain,
-  CLEAN_PRESET,
-} from "@/utils/effects";
+
+// Lazy load effects to prevent AudioContext creation on import
+type EffectsChain = {
+  input: Tremolo;
+  effects: {
+    reverb: Reverb;
+    compressor: Compressor;
+    filter: Filter;
+    chorus: Chorus;
+    tremolo: Tremolo;
+  };
+};
+
+type EffectsConfig = {
+  reverbDecay?: number;
+  compressorThreshold?: number;
+  compressorRatio?: number;
+  filterFrequency?: number;
+  chorusFrequency?: number;
+  chorusDelayTime?: number;
+  chorusDepth?: number;
+  tremoloFrequency?: number;
+  tremoloDepth?: number;
+};
+
+const CLEAN_PRESET: EffectsConfig = {
+  reverbDecay: 0.1,
+  filterFrequency: 20000,
+  chorusFrequency: 0,
+  chorusDelayTime: 0,
+  chorusDepth: 0,
+  tremoloFrequency: 0,
+  tremoloDepth: 0,
+};
+
+// Lazy load effects functions
+let createEffectsChain: ((config?: EffectsConfig) => EffectsChain) | null =
+  null;
+let disposeEffectsChain: ((effectsChain: EffectsChain) => void) | null = null;
+
+const loadEffects = async () => {
+  if (!createEffectsChain) {
+    const effects = await import("@/utils/effects");
+    createEffectsChain = effects.createEffectsChain;
+    disposeEffectsChain = effects.disposeEffectsChain;
+  }
+};
 
 export type TimeType = "hour" | "minute";
 
@@ -35,43 +84,45 @@ interface UseAudioReturn {
 }
 
 const audioConfig = {
-    notes: [
-      {
-        id: "toneOne",
-        name: "Tone One",
-        timeType: "hour",
-        volume: 0.5,
-        harmonicInterval: 0,
-      },
-      {
-        id: "toneTwo",
-        name: "Tone Two",
-        timeType: "hour",
-        volume: 0.5,
-        harmonicInterval: 7,
-      },
-      {
-        id: "toneThree",
-        name: "Tone Three",
-        timeType: "minute",
-        volume: 0.5,
-        harmonicInterval: 0,
-      },
-      {
-        id: "toneFour",
-        name: "Tone Four",
-        timeType: "minute",
-        volume: 0.5,
-        harmonicInterval: 7,
-      },
-    ] as AudioNote[],
-  };
+  notes: [
+    {
+      id: "toneOne",
+      name: "Tone One",
+      timeType: "hour",
+      volume: 0.5,
+      harmonicInterval: 0,
+    },
+    {
+      id: "toneTwo",
+      name: "Tone Two",
+      timeType: "hour",
+      volume: 0.5,
+      harmonicInterval: 7,
+    },
+    {
+      id: "toneThree",
+      name: "Tone Three",
+      timeType: "minute",
+      volume: 0.5,
+      harmonicInterval: 0,
+    },
+    {
+      id: "toneFour",
+      name: "Tone Four",
+      timeType: "minute",
+      volume: 0.5,
+      harmonicInterval: 7,
+    },
+  ] as AudioNote[],
+};
 
-export const useAudio = (
-  time: Date | null,
-  mounted: boolean
-): UseAudioReturn => {
-  const [audioState, setAudioState] = useState<{ started: boolean; notes: AudioNote[] }>({
+export const useAudio = (time: Date | null): UseAudioReturn => {
+  const [audioState, setAudioState] = useState<{
+    started: boolean;
+    initialized: boolean;
+    notes: AudioNote[];
+  }>({
+    initialized: false,
     started: false,
     notes: audioConfig.notes,
   });
@@ -83,13 +134,17 @@ export const useAudio = (
       oscillatorRef: { current: null as Oscillator | null },
       gainRef: { current: null as Gain | null },
     })) as AudioNoteRefs[],
+    initialized: false,
   });
 
-  const getNote = useCallback((noteId: string) => {
-    const stateNote = audioState.notes.find((n) => n.id === noteId);
-    const refNote = audioRefs.current.notes.find((n) => n.id === noteId);
-    return { state: stateNote, refs: refNote };
-  }, [audioState.notes]);
+  const getNote = useCallback(
+    (noteId: string) => {
+      const stateNote = audioState.notes.find((n) => n.id === noteId);
+      const refNote = audioRefs.current.notes.find((n) => n.id === noteId);
+      return { state: stateNote, refs: refNote };
+    },
+    [audioState.notes]
+  );
 
   const updateVolume = (noteId: string, volume: number) => {
     const { refs } = getNote(noteId);
@@ -127,31 +182,43 @@ export const useAudio = (
     }));
   };
 
-  // Initialize audio components
-  useEffect(() => {
-    if (!mounted) return;
+  // Initialize audio objects (only after user interaction)
+  const initializeAudio = async () => {
+    if (audioRefs.current.initialized) return;
 
     try {
-      const effectsChain = createEffectsChain(CLEAN_PRESET);
-      audioRefs.current.effects = effectsChain;
+      // Load effects module
+      await loadEffects();
 
+      if (!createEffectsChain) {
+        throw new Error("Failed to load effects module");
+      }
+
+      // Create effects chain
+      audioRefs.current.effects = createEffectsChain(CLEAN_PRESET);
+
+      // Create oscillators and gains for each note
       audioRefs.current.notes.forEach((noteRef) => {
-        const configNote = audioConfig.notes.find((n) => n.id === noteRef.id);
-        if (!configNote) return;
+        const gain = new Gain(0.5);
+        gain.connect(audioRefs.current.effects!.input);
+        noteRef.gainRef.current = gain;
 
-        noteRef.gainRef.current = new Gain(configNote.volume).connect(
-          effectsChain.input
-        );
-        noteRef.oscillatorRef.current = getOsc(noteRef.gainRef.current);
+        const oscillator = getOsc(gain);
+        noteRef.oscillatorRef.current = oscillator;
       });
+
+      audioRefs.current.initialized = true;
     } catch (error) {
       console.error("Error initializing Tone.js:", error);
     }
+  };
 
+  // Cleanup function
+  useEffect(() => {
     const currentRefs = audioRefs.current;
-
     return () => {
       try {
+        // Cleanup individual note refs
         currentRefs.notes.forEach((noteRef) => {
           if (noteRef.oscillatorRef.current)
             noteRef.oscillatorRef.current.dispose();
@@ -159,18 +226,18 @@ export const useAudio = (
         });
 
         // Cleanup master effects
-        if (currentRefs.effects) {
+        if (currentRefs.effects && disposeEffectsChain) {
           disposeEffectsChain(currentRefs.effects);
         }
       } catch (error) {
         console.error("Error disposing Tone.js objects:", error);
       }
     };
-  }, [mounted]);
+  }, []);
 
   // Main audio frequency update
   useEffect(() => {
-    if (!audioState.started || !time) return;
+    if (!audioState.started || !time || !audioRefs.current.initialized) return;
 
     try {
       const currentTime = {
@@ -198,20 +265,30 @@ export const useAudio = (
   // Audio control functions
   const startAudio = async () => {
     try {
-      const success = await startAudioEngine();
-      if (success) {
-        setAudioState((prev) => ({ ...prev, started: true }));
-
-        // Start all oscillators
-        audioRefs.current.notes.forEach((noteRef) => {
-          if (
-            noteRef.oscillatorRef.current &&
-            noteRef.oscillatorRef.current.state === "stopped"
-          ) {
-            noteRef.oscillatorRef.current.start();
-          }
-        });
+      // Only start audio context if not already initialized
+      if (!audioRefs.current.initialized) {
+        const success = await startAudioEngine();
+        if (!success) {
+          console.warn("Failed to start audio context");
+          return;
+        }
+        
+        // Initialize audio objects
+        await initializeAudio();
       }
+
+      // Update state to indicate audio is started
+      setAudioState((prev) => ({ ...prev, initialized: true, started: true }));
+
+      // Start all oscillators
+      audioRefs.current.notes.forEach((noteRef) => {
+        if (
+          noteRef.oscillatorRef.current &&
+          noteRef.oscillatorRef.current.state === "stopped"
+        ) {
+          noteRef.oscillatorRef.current.start();
+        }
+      });
     } catch (error) {
       console.error("Error starting audio:", error);
     }
@@ -252,4 +329,4 @@ export const useAudio = (
     updateHarmonicInterval,
     updateNoteType,
   };
-}; 
+};

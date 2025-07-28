@@ -11,7 +11,9 @@ import AudioControls from '../AudioControls';
 describe('AudioControls accessibility', () => {
   it('has no accessibility violations', async () => {
     const { container } = render(
-      <AudioControls audioStarted={false} onToggleAudio={() => {}} />
+      <AudioControls isEnabled={false} onToggle={() => {}}>
+        <div>Clock Content</div>
+      </AudioControls>
     );
     // @ts-expect-error: Custom matcher from vitest-axe
     expect(await axe(container)).toHaveNoViolations();
