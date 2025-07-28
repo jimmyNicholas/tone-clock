@@ -75,7 +75,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) =>
             aria-labelledby={`tab-${tab.key}`}
             hidden={activeTab !== tab.key}
             tabIndex={0}
-            className={activeTab === tab.key ? "flex-1 w-96" : "hidden"}
+            className={activeTab === tab.key ? "flex-1 min-w-96" : "hidden"}
           >
             {tab.content}
           </div>

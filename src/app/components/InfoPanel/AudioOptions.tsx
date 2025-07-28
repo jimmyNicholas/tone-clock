@@ -1,6 +1,5 @@
 import React from "react";
 import { AudioNote, TimeType } from "@/hooks/useAudio";
-import { FiVolumeX, FiVolume2 } from 'react-icons/fi';
 
 interface AudioOptionsProps {
   notes: AudioNote[];
@@ -9,111 +8,215 @@ interface AudioOptionsProps {
   updateNoteType: (noteId: string, noteType: TimeType) => void;
 }
 
+const HandToggle: React.FC<{
+  id: string;
+  timeType: TimeType;
+  updateNoteType: (noteId: string, noteType: TimeType) => void;
+}> = ({ id, timeType, updateNoteType }) => (
+  <div className="mb-0.5 grid grid-cols-3 items-center gap-2">
+    <span className="text-sm text-gray-600">Hand:</span>
+    <button
+      onClick={() => updateNoteType(id, "hour")}
+      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+        timeType === "hour"
+          ? "bg-red-500 text-white"
+          : "bg-gray-200 text-gray-700"
+      }`}
+    >
+      Hour
+    </button>
+    <button
+      onClick={() => updateNoteType(id, "minute")}
+      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+        timeType === "minute"
+          ? "bg-green-500 text-white"
+          : "bg-gray-200 text-gray-700"
+      }`}
+    >
+      Minute
+    </button>
+  </div>
+);
+
+const LabeledSlider: React.FC<{
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (newValue: number) => void;
+  valueDisplay?: React.ReactNode;
+  colorClass?: string;
+  ariaLabel?: string;
+}> = ({
+  label,
+  value,
+  min,
+  max,
+  step = 1,
+  onChange,
+  valueDisplay,
+  colorClass = "accent-blue-500",
+  ariaLabel,
+}) => (
+  <div className="w-full">
+    <div className="text-sm text-gray-600 mb-1">{label}</div>
+    <div className="flex items-center gap-2 mb-0.5">
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className={`flex-1 w-full ${colorClass}`}
+        aria-label={ariaLabel || label}
+      />
+      {valueDisplay}
+    </div>
+  </div>
+);
+
+const IntervalAdjustButton: React.FC<{
+    label: string;
+    onClick: () => void;
+    disabled: boolean;
+    ariaLabel: string;
+  }> = ({ label, onClick, disabled, ariaLabel }) => {
+    return (
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        className="flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded text-sm font-bold transition-colors"
+      >
+        {label}
+      </button>
+    );
+  };
+
+const IntervalAdjustButtons: React.FC<{
+  value: number;
+  onChange: (newValue: number) => void;
+  min: number;
+  max: number;
+}> = ({ value, onChange, min, max }) => {
+
+  return (
+    <div className="grid grid-cols-4 gap-2 text-xs text-gray-600 mb-0.5">
+      <IntervalAdjustButton
+        label="-12"
+        onClick={() => onChange(Math.max(min, value - 12))}
+        disabled={value <= min}
+        ariaLabel={`Decrease interval by 12 semitones`}
+      />
+      <IntervalAdjustButton
+        label="-1"
+        onClick={() => onChange(Math.max(min, value - 1))}
+        disabled={value <= min}
+        ariaLabel={`Decrease interval by 1 semitone`}
+      />
+      <IntervalAdjustButton
+        label="+1"
+        onClick={() => onChange(Math.min(max, value + 1))}
+        disabled={value >= max}
+        ariaLabel={`Increase interval by 1 semitone`}
+      />
+      <IntervalAdjustButton
+        label="+12"
+        onClick={() => onChange(Math.min(max, value + 12))}
+        disabled={value >= max}
+        ariaLabel={`Increase interval by 12 semitones`}
+      />
+    </div>
+  );
+};
+
+const ToneCard: React.FC<{
+  id: string;
+  name: string;
+  volume: number;
+  harmonicInterval: number;
+  timeType: TimeType;
+  updateVolume: (noteId: string, newVolume: number) => void;
+  updateHarmonicInterval: (noteId: string, interval: number) => void;
+  updateNoteType: (noteId: string, noteType: TimeType) => void;
+}> = ({
+  id,
+  name,
+  volume,
+  harmonicInterval,
+  timeType,
+  updateVolume,
+  updateHarmonicInterval,
+  updateNoteType,
+}) => (
+  <div className="bg-white border rounded-lg p-3 flex flex-col w-full">
+    <div className="font-semibold text-base mb-0.5">{name}</div>
+    <HandToggle id={id} timeType={timeType} updateNoteType={updateNoteType} />
+    {/* 3. Volume label & 4. Volume slider */}
+    <LabeledSlider
+      label="Volume:"
+      value={volume}
+      min={0}
+      max={1}
+      step={0.01}
+      onChange={(val) => updateVolume(id, val)}
+      valueDisplay={
+        <span className="text-xs min-w-[1.5rem] text-right">
+          {Math.round(volume * 100)}%
+        </span>
+      }
+      colorClass="accent-red-500"
+      ariaLabel={`Volume for ${name}`}
+    />
+    {/* 5. Interval label & 6. Interval slider */}
+    <LabeledSlider
+      label="Interval:"
+      value={harmonicInterval}
+      min={-24}
+      max={24}
+      step={1}
+      onChange={(val) => updateHarmonicInterval(id, val)}
+      valueDisplay={
+        <span className="text-xs min-w-[1.5rem] text-right">
+          {harmonicInterval > 0 ? `+${harmonicInterval}` : harmonicInterval} st
+        </span>
+      }
+      colorClass="accent-blue-500"
+      ariaLabel={`Interval for ${name}`}
+    />
+    {/* Interval adjust buttons */}
+    <IntervalAdjustButtons
+      value={harmonicInterval}
+      onChange={(val) => updateHarmonicInterval(id, val)}
+      min={-24}
+      max={24}
+    />
+  </div>
+);
+
 const AudioOptions: React.FC<AudioOptionsProps> = ({
   notes,
   updateVolume,
   updateHarmonicInterval,
   updateNoteType,
-}: AudioOptionsProps) => {
-  const handleIntervalChange = (noteId: string, newInterval: number) => {
-    const clampedInterval = Math.max(-24, Math.min(24, newInterval));
-    updateHarmonicInterval(noteId, clampedInterval);
-  };
-  const incrementInterval = (noteId: string, currentInterval: number) => {
-    const newInterval = Math.min(24, currentInterval + 1);
-    updateHarmonicInterval(noteId, newInterval);
-  };
-  const decrementInterval = (noteId: string, currentInterval: number) => {
-    const newInterval = Math.max(-24, currentInterval - 1);
-    updateHarmonicInterval(noteId, newInterval);
-  };
-  const getIntervalLabel = (interval: number): string => {
-    if (interval === 0) return "Base note";
-    const direction = interval > 0 ? "+" : "";
-    return `${direction}${interval} semitones`;
-  };
+}) => {
   return (
-    <div className="grid grid-cols-2 gap-6 justify-center items-center flex-wrap">
-      {notes.length > 0 ? (
-        notes.map(({ id, name, volume, harmonicInterval, timeType }) => (
-          <div key={id} className="flex flex-col items-center gap-1 p-2 bg-gray-50 rounded-lg">
-            <label className="text-sm font-medium text-gray-700">{name}</label>
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex bg-gray-200 rounded-full p-1" role="group" aria-label={`Select note type for ${name}`}>
-                <button
-                  onClick={() => updateNoteType(id, "hour")}
-                  aria-pressed={timeType === "hour"}
-                  aria-label={`Set ${name} to hour`}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${timeType === "hour" ? "bg-red-500 text-white shadow-sm" : "text-gray-600 hover:text-gray-800"}`}
-                >
-                  Hour
-                </button>
-                <button
-                  onClick={() => updateNoteType(id, "minute")}
-                  aria-pressed={timeType === "minute"}
-                  aria-label={`Set ${name} to minute`}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${timeType === "minute" ? "bg-green-500 text-white shadow-sm" : "text-gray-600 hover:text-gray-800"}`}
-                >
-                  Minute
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-xs font-medium text-gray-600">Volume</span>
-              <div className="flex items-center gap-2">
-                <FiVolumeX className="text-gray-500" aria-label="Mute" />
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={volume}
-                  onChange={(e) => updateVolume(id, parseFloat(e.target.value))}
-                  aria-label={`Volume for ${name}`}
-                  className="w-20 accent-red-500"
-                />
-                <FiVolume2 className="text-gray-500" aria-label="Loud" />
-              </div>
-              <span className="text-xs text-gray-600">{Math.round(volume * 100)}%</span>
-            </div>
-            <div className="flex flex-col items-center gap-1 mt-2">
-              <span className="text-xs font-medium text-gray-600">Harmonic Interval</span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => decrementInterval(id, harmonicInterval)}
-                  disabled={harmonicInterval <= -24}
-                  aria-label={`Decrease harmonic interval for ${name}`}
-                  className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded text-sm font-bold transition-colors"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="-24"
-                  max="24"
-                  value={harmonicInterval}
-                  onChange={(e) => handleIntervalChange(id, parseInt(e.target.value))}
-                  aria-label={`Harmonic interval for ${name}`}
-                  className="w-16 text-center border border-gray-300 rounded px-2 py-1 text-sm"
-                />
-                <button
-                  onClick={() => incrementInterval(id, harmonicInterval)}
-                  disabled={harmonicInterval >= 24}
-                  aria-label={`Increase harmonic interval for ${name}`}
-                  className="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded text-sm font-bold transition-colors"
-                >
-                  +
-                </button>
-              </div>
-              <span className="text-xs text-gray-500">{getIntervalLabel(harmonicInterval)}</span>
-            </div>
-          </div>
-        ))
-      ) : (
-        <div className="col-span-2 text-center text-gray-500">No audio controls available</div>
-      )}
+    <div className="flex flex-col items-center justify-center w-full text-left whitespace-nowrap">
+      <div className="grid grid-cols-2 gap-2 pl-2 w-full">
+        {notes.map((note) => (
+          <ToneCard
+            key={note.id}
+            {...note}
+            updateVolume={updateVolume}
+            updateHarmonicInterval={updateHarmonicInterval}
+            updateNoteType={updateNoteType}
+          />
+        ))}
+      </div>
     </div>
   );
 };
 
-export default AudioOptions; 
+export default AudioOptions;
