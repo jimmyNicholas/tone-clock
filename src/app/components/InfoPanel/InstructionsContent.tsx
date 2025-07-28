@@ -15,7 +15,7 @@ const instructions = [
     id: "enable-sound",
     title: "How do I start the audio?",
     content: (
-      <InfoParagraph><span className="font-semibold">Enabling Sound:</span> Click the &quot;Enable Sound&quot; button at the top of the interface to activate audio playback. This must be done due to browser autoplay restrictions - the app cannot start playing sound automatically.</InfoParagraph>
+      <InfoParagraph><span className="font-semibold">Enabling Sound:</span> Click the &quot;Sound Disabled&quot; button on the clock face to activate audio playback. This must be done due to browser autoplay restrictions, the app cannot start playing sound automatically.</InfoParagraph>
     ),
   },
   {
@@ -43,7 +43,7 @@ const instructions = [
     id: "timezone",
     title: "How do I change the timezone?",
     content: (
-      <InfoParagraph><span className="font-semibold">Timezone Selection:</span> Use the timezone dropdown to set your local time zone (GMT -12 to GMT +12), ensuring the musical representation accurately reflects your current local time.</InfoParagraph>
+      <InfoParagraph><span className="font-semibold">Timezone Selection:</span> Use the timezone dropdown in the timezone tab to set your local time zone (GMT -12 to GMT +12), ensuring the musical representation accurately reflects your current local time.</InfoParagraph>
     ),
   },
 ];
