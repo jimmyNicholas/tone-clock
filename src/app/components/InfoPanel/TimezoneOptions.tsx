@@ -62,7 +62,7 @@ const TimezoneOptions: React.FC<TimezoneOptionsProps> = ({
       {/* Current Time Display */}
       <div className="text-center p-4 bg-gray-50 rounded-lg">
         <div className="text-sm text-gray-600 mb-1">Current Time</div>
-        <div className="text-2xl font-mono text-gray-800">
+        <div className="text-2xl font-mono text-gray-800" data-testid="current-time">
           {currentTime?.toLocaleTimeString()}
         </div>
       </div>

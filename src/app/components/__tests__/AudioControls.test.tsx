@@ -1,16 +1,16 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import FrostedGlassOverlay from '../FrostedGlassOverlay';
+import AudioControls from '../AudioControls';
 
 describe('FrostedGlassOverlay', () => {
   const mockToggle = vi.fn();
 
   it('renders children without overlay when sound is enabled', () => {
     render(
-      <FrostedGlassOverlay isEnabled={true} onToggle={mockToggle}>
+      <AudioControls isEnabled={true} onToggle={mockToggle}>
         <div>Clock Content</div>
-      </FrostedGlassOverlay>
+      </AudioControls>
     );
     
     expect(screen.getByText('Clock Content')).toBeInTheDocument();
@@ -19,9 +19,9 @@ describe('FrostedGlassOverlay', () => {
 
   it('renders overlay when sound is disabled', () => {
     render(
-      <FrostedGlassOverlay isEnabled={false} onToggle={mockToggle}>
+      <AudioControls isEnabled={false} onToggle={mockToggle}>
         <div>Clock Content</div>
-      </FrostedGlassOverlay>
+      </AudioControls>
     );
     
     expect(screen.getByText('Clock Content')).toBeInTheDocument();
@@ -32,9 +32,9 @@ describe('FrostedGlassOverlay', () => {
 
   it('calls onToggle when overlay is clicked', () => {
     render(
-      <FrostedGlassOverlay isEnabled={false} onToggle={mockToggle}>
+      <AudioControls isEnabled={false} onToggle={mockToggle}>
         <div>Clock Content</div>
-      </FrostedGlassOverlay>
+      </AudioControls>
     );
     
     const overlay = screen.getByRole('button', { name: /click to enable sound/i });

@@ -3,7 +3,7 @@ import React, { Suspense } from "react";
 import ClockFace from "@/app/components/ClockFace";
 import AppHeader from "@/app/components/AppHeader";
 import TabbedPanel from "@/app/components/TabbedPanel";
-import FrostedGlassOverlay from "@/app/components/FrostedGlassOverlay";
+import AudioControls from "@/app/components/AudioControls";
 import { useTime } from "@/hooks/useTime";
 import { useAudio } from "@/hooks/useAudio";
 import AudioOptions from "./components/InfoPanel/AudioOptions";
@@ -36,12 +36,12 @@ export default function Home() {
         <div className="mb-8 text-center">
           <AppHeader />
           <div className="grid grid-cols-[2fr_1fr] mt-6 text-lg font-semibold text-gray-800">
-            <FrostedGlassOverlay
+            <AudioControls
               isEnabled={audioStarted}
               onToggle={toggleAudio}
             >
               <ClockFace {...clockFaceProps} />
-            </FrostedGlassOverlay>
+            </AudioControls>
             <Suspense fallback={<div>Loading panel...</div>}>
               <TabbedPanel 
                   tabs={[

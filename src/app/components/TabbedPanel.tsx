@@ -84,7 +84,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) =>
 
       {/* Tab Navigation */}
       <nav
-        className="flex border-t bg-gray-50 rounded-b-lg overflow-x-auto"
+        className="flex border-t bg-gray-50 rounded-b-lg overflow-x-auto whitespace-nowrap"
         role="tablist"
         aria-label="Information panel tabs"
       >
