@@ -8,13 +8,20 @@ export const startAudioEngine = async () => {
       return false;
     }
 
+    const context = Tone.getContext();
+    
     // Check if audio context exists and start it
-    if (Tone.getContext().state === 'suspended') {
+    if (context.state === 'suspended') {
+      console.log('Starting audio context...');
       await Tone.start();
       console.log('Audio context started successfully');
+    } else if (context.state === 'running') {
+      console.log('Audio context already running');
+    } else {
+      console.log('Audio context state:', context.state);
     }
     
-    return true;
+    return context.state === 'running';
   } catch (error) {
     console.error("Error starting audio:", error);
     return false;

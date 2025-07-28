@@ -1,10 +1,9 @@
 "use client";
 import React, { Suspense } from "react";
 import ClockFace from "@/app/components/ClockFace";
-import AudioControls from "@/app/components/AudioControls";
-import TimeDisplay from "@/app/components/TimeDisplay";
 import AppHeader from "@/app/components/AppHeader";
 import TabbedPanel from "@/app/components/TabbedPanel";
+import FrostedGlassOverlay from "@/app/components/FrostedGlassOverlay";
 import { useTime } from "@/hooks/useTime";
 import { useAudio } from "@/hooks/useAudio";
 import AudioOptions from "./components/InfoPanel/AudioOptions";
@@ -14,7 +13,7 @@ import AboutContent from "./components/InfoPanel/AboutContent";
 import HistoryContent from "./components/InfoPanel/HistoryContent";
 
 export default function Home() {
-  const { time, mounted, selectedTimezone, setSelectedTimezone } = useTime();
+  const { time, selectedTimezone, setSelectedTimezone } = useTime();
   const {
     audioStarted,
     toggleAudio,
@@ -22,7 +21,7 @@ export default function Home() {
     updateVolume,
     updateHarmonicInterval,
     updateNoteType,
-  } = useAudio(time, mounted);
+  } = useAudio(time);
 
   const clockFaceProps = {
     hours: time ? time.getHours() % 12 : null,
@@ -36,12 +35,13 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center min-h-screen min-w-screen bg-gradient-to-br from-purple-100 to-blue-100 p-8">
         <div className="mb-8 text-center">
           <AppHeader />
-          <AudioControls
-            audioStarted={audioStarted}
-            onToggleAudio={toggleAudio}
-          />
           <div className="grid grid-cols-[2fr_1fr] mt-6 text-lg font-semibold text-gray-800">
-            <ClockFace {...clockFaceProps} />
+            <FrostedGlassOverlay
+              isEnabled={audioStarted}
+              onToggle={toggleAudio}
+            >
+              <ClockFace {...clockFaceProps} />
+            </FrostedGlassOverlay>
             <Suspense fallback={<div>Loading panel...</div>}>
               <TabbedPanel 
                   tabs={[
@@ -62,16 +62,10 @@ export default function Home() {
                   ]} 
                   defaultTab="audio" 
               />
-      
             </Suspense>
           </div>
         </div>
-        {/* Time Display */}
-        <TimeDisplay
-          time={time}
-          selectedTimezone={selectedTimezone}
-          onTimezoneChange={setSelectedTimezone}
-        />
+       
       </div>
     </div>
   );
