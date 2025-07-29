@@ -43,8 +43,8 @@ const ClockFace: React.FC<ClockFaceProps> = ({hours, minutes, seconds, size}) =>
           cx={center}
           cy={center}
           r={outerRadius}
-          fill="white"
-          stroke="#e5e7eb"
+          fill="var(--color-surface)"
+          stroke="var(--color-on-surface)"
           strokeWidth={outerStrokeWidth}
         />
         
@@ -53,8 +53,8 @@ const ClockFace: React.FC<ClockFaceProps> = ({hours, minutes, seconds, size}) =>
           cx={center}
           cy={center}
           r={innerRadius}
-          fill="#f9fafb"
-          stroke="#d1d5db"
+          fill="var(--color-surface-light)"
+          stroke="var(--color-on-surface)"
           strokeWidth={innerStrokeWidth}
         />
         
@@ -71,15 +71,16 @@ const ClockFace: React.FC<ClockFaceProps> = ({hours, minutes, seconds, size}) =>
                 cx={x}
                 cy={y}
                 r={noteCircleRadius}
-                fill="#10b981"
+                fill="var(--color-on-surface)"
                 className="opacity-70"
               />
               <text
                 x={x}
-                y={y + noteCircleRadius * 0.25} // Adjust text position proportionally
+                y={y + noteCircleRadius * 0.25}
                 textAnchor="middle"
-                className="font-semibold fill-white"
-                fontSize={size * 0.03} // Scale font size proportionally
+                fill="var(--color-surface-light)"
+                className="font-semibold"
+                fontSize={size * 0.03}
               >
                 {note}
               </text>
@@ -103,14 +104,14 @@ const ClockFace: React.FC<ClockFaceProps> = ({hours, minutes, seconds, size}) =>
               y1={y1}
               x2={x2}
               y2={y2}
-              stroke="#6b7280"
+              stroke="var(--color-on-surface)"
               strokeWidth={markerStrokeWidth}
             />
           );
         })}
         
         {/* Center dot */}
-        <circle cx={center} cy={center} r={centerDotRadius} fill="#1f2937" />
+        <circle cx={center} cy={center} r={centerDotRadius} fill="var(--color-on-surface)" />
         
         {/* Hour hand */}
         <line
@@ -118,7 +119,7 @@ const ClockFace: React.FC<ClockFaceProps> = ({hours, minutes, seconds, size}) =>
           y1={center}
           x2={center + hourHandLength * Math.cos((hourAngle * Math.PI) / 180)}
           y2={center + hourHandLength * Math.sin((hourAngle * Math.PI) / 180)}
-          stroke="#dc2626"
+          stroke="var(--color-hour)"
           strokeWidth={hourHandStroke}
           strokeLinecap="round"
           className="drop-shadow-sm"
@@ -130,7 +131,7 @@ const ClockFace: React.FC<ClockFaceProps> = ({hours, minutes, seconds, size}) =>
           y1={center}
           x2={center + minuteHandLength * Math.cos((minuteAngle * Math.PI) / 180)}
           y2={center + minuteHandLength * Math.sin((minuteAngle * Math.PI) / 180)}
-          stroke="#059669"
+          stroke="var(--color-minute)"
           strokeWidth={minuteHandStroke}
           strokeLinecap="round"
           className="drop-shadow-sm"

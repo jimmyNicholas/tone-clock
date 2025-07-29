@@ -11,7 +11,10 @@ interface InfoAccordionProps {
   defaultOpen?: number;
 }
 
-const InfoAccordion: React.FC<InfoAccordionProps> = ({ items, defaultOpen = 0 }) => {
+const InfoAccordion: React.FC<InfoAccordionProps> = ({
+  items,
+  defaultOpen = 0,
+}) => {
   const [openIndex, setOpenIndex] = useState<number>(defaultOpen);
   const headerRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -45,13 +48,19 @@ const InfoAccordion: React.FC<InfoAccordionProps> = ({ items, defaultOpen = 0 })
       {items.map((item, idx) => (
         <div key={item.id}>
           <button
-            ref={el => { headerRefs.current[idx] = el; }}
+            ref={(el) => {
+              headerRefs.current[idx] = el;
+            }}
             id={`accordion-header-${item.id}`}
             aria-controls={`accordion-panel-${item.id}`}
             aria-expanded={openIndex === idx}
-            className={`w-full text-left px-4 py-2 font-medium rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${openIndex === idx ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-800 hover:bg-blue-50'}`}
+            className={`w-full text-left px-4 py-2 font-medium rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-hour ${
+              openIndex === idx
+                ? "bg-hour/80 text-on-hour"
+                : "bg-surface-light text-on-surface hover:bg-surface-light"
+            }`}
             onClick={() => handleToggle(idx)}
-            onKeyDown={e => handleHeaderKeyDown(e, idx)}
+            onKeyDown={(e) => handleHeaderKeyDown(e, idx)}
             tabIndex={0}
             role="button"
             aria-disabled="false"
@@ -62,17 +71,17 @@ const InfoAccordion: React.FC<InfoAccordionProps> = ({ items, defaultOpen = 0 })
             id={`accordion-panel-${item.id}`}
             role="region"
             aria-labelledby={`accordion-header-${item.id}`}
-            className={`overflow-hidden transition-all duration-200 ${openIndex === idx ? 'max-h-96 py-2 px-4' : 'max-h-0 py-0 px-4'}`}
+            className={`overflow-hidden transition-all duration-200 ${
+              openIndex === idx ? "max-h-96 py-2 px-4" : "max-h-0 py-0 px-4"
+            }`}
             style={{
               opacity: openIndex === idx ? 1 : 0,
-              pointerEvents: openIndex === idx ? 'auto' : 'none',
+              pointerEvents: openIndex === idx ? "auto" : "none",
             }}
             aria-hidden={openIndex !== idx}
           >
             {openIndex === idx && (
-              <div className="text-gray-700 text-sm">
-                {item.content}
-              </div>
+              <div className="text-on-surface text-sm">{item.content}</div>
             )}
           </div>
         </div>
