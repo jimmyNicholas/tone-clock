@@ -111,7 +111,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({
             aria-selected={activeTab === tab.key}
             aria-controls={`tabpanel-${tab.key}`}
             tabIndex={activeTab === tab.key ? 0 : -1}
-            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors border-t-2 focus:outline-none focus-visible:ring-2 focus:ring-hour ${
+            className={`flex-1 py-3 px-3 text-sm font-medium transition-colors border-t-2 focus:outline-none focus-visible:ring-2 focus:ring-hour ${
               activeTab === tab.key
                 ? "border-hour text-hour bg-surface"
                 : "border-transparent text-on-surface hover:text-hour hover:bg-surface-light"
