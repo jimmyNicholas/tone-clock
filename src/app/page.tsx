@@ -32,10 +32,10 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen grid place-content-center">
-      <div className="flex flex-col items-center justify-center min-h-screen min-w-screen bg-gradient-to-br from-purple-100 to-blue-100 p-8">
+      <div className="flex flex-col items-center justify-center min-h-screen min-w-screen bg-gradient-to-br from-minute/10 to-hour/10 p-8">
         <div className="mb-8 text-center">
           <AppHeader />
-          <div className="grid grid-cols-[2fr_1fr] mt-6 text-lg font-semibold text-gray-800">
+          <div className="grid grid-cols-[2fr_1fr] mt-6 text-lg font-semibold text-on-surface">
             <AudioControls
               isEnabled={audioStarted}
               onToggle={toggleAudio}

@@ -10,7 +10,7 @@ const InfoLink: React.FC<InfoLinkProps> = ({ href, children }) => (
     href={href}
     target="_blank"
     rel="noopener noreferrer"
-    className="text-blue-600 underline"
+    className="text-hour underline"
     title={href}
   >
     {children}

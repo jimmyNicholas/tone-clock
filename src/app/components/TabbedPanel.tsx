@@ -12,11 +12,14 @@ interface TabbedPanelProps {
   defaultTab: string;
 }
 
-export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) => {
+export const TabbedPanel: React.FC<TabbedPanelProps> = ({
+  tabs,
+  defaultTab,
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const TAB_KEYS = tabs.map(tab => tab.key);
+  const TAB_KEYS = tabs.map((tab) => tab.key);
 
   // Get initial tab from query string, default to defaultTab
   const getInitialTab = (): string => {
@@ -33,7 +36,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) =>
   }, []);
 
   useEffect(() => {
-    const currentTab = tabs.find(tab => tab.key === activeTab);
+    const currentTab = tabs.find((tab) => tab.key === activeTab);
     if (currentTab) {
       setLiveMessage(`${currentTab.label} tab selected`);
     }
@@ -62,11 +65,23 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) =>
   };
 
   return (
-    <div className="border rounded-lg bg-white shadow-sm p-0 w-full max-w-lg mx-auto flex flex-col h-136">
+    <div className="border rounded-lg bg-surface-light/60 shadow-sm p-0 w-full max-w-lg mx-auto flex flex-col h-136">
       {/* ARIA live region for screen reader announcements */}
-      <div aria-live="polite" aria-atomic="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>{liveMessage}</div>
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          width: "1px",
+          height: "1px",
+          overflow: "hidden",
+        }}
+      >
+        {liveMessage}
+      </div>
       {/* Tab Content */}
-      <div className="flex-1 p-6 pr-8 mx-0.5 bg-white flex flex-col justify-start rounded-t-lg overflow-y-scroll">
+      <div className="flex-1 p-6 pr-8 mx-0.5 flex flex-col justify-start rounded-t-lg overflow-y-scroll">
         {tabs.map((tab) => (
           <div
             key={tab.key}
@@ -84,7 +99,7 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) =>
 
       {/* Tab Navigation */}
       <nav
-        className="flex border-t bg-gray-50 rounded-b-lg overflow-x-auto whitespace-nowrap"
+        className="flex border-t bg-surface-dark rounded-b-lg overflow-x-auto whitespace-nowrap"
         role="tablist"
         aria-label="Information panel tabs"
       >
@@ -96,7 +111,11 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) =>
             aria-selected={activeTab === tab.key}
             aria-controls={`tabpanel-${tab.key}`}
             tabIndex={activeTab === tab.key ? 0 : -1}
-            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors border-t-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === tab.key ? "border-blue-500 text-blue-600 bg-white" : "border-transparent text-gray-600 hover:text-blue-500 hover:bg-gray-100"}`}
+            className={`flex-1 py-3 px-3 text-sm font-medium transition-colors border-t-2 focus:outline-none focus-visible:ring-2 focus:ring-hour ${
+              activeTab === tab.key
+                ? "border-hour text-hour bg-surface"
+                : "border-transparent text-on-surface hover:text-hour hover:bg-surface-light"
+            }`}
             onClick={() => handleTabClick(tab.key)}
             onKeyDown={(e) => {
               if (e.key === "ArrowRight") {
@@ -115,7 +134,9 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) =>
                 handleTabClick(tabs[0].key);
               } else if (e.key === "End") {
                 e.preventDefault();
-                document.getElementById(`tab-${tabs[tabs.length - 1].key}`)?.focus();
+                document
+                  .getElementById(`tab-${tabs[tabs.length - 1].key}`)
+                  ?.focus();
                 handleTabClick(tabs[tabs.length - 1].key);
               }
             }}
@@ -129,4 +150,4 @@ export const TabbedPanel: React.FC<TabbedPanelProps> = ({ tabs, defaultTab }) =>
   );
 };
 
-export default TabbedPanel; 
+export default TabbedPanel;

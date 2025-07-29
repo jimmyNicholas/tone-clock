@@ -13,14 +13,14 @@ const HandToggle: React.FC<{
   timeType: TimeType;
   updateNoteType: (noteId: string, noteType: TimeType) => void;
 }> = ({ id, timeType, updateNoteType }) => (
-  <div className="mb-0.5 grid grid-cols-3 items-center gap-2">
-    <span className="text-sm text-gray-600">Hand:</span>
+  <div className="mb-1 grid grid-cols-3 items-center gap-2">
+    <span className="text-sm text-on-surface">Hand:</span>
     <button
       onClick={() => updateNoteType(id, "hour")}
       className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
         timeType === "hour"
-          ? "bg-red-500 text-white"
-          : "bg-gray-200 text-gray-700"
+          ? "bg-hour text-on-hour"
+          : "bg-secondary text-on-secondary hover:bg-secondary-hover"
       }`}
     >
       Hour
@@ -29,8 +29,8 @@ const HandToggle: React.FC<{
       onClick={() => updateNoteType(id, "minute")}
       className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
         timeType === "minute"
-          ? "bg-green-500 text-white"
-          : "bg-gray-200 text-gray-700"
+          ? "bg-minute text-on-minute"
+          : "bg-secondary text-on-secondary hover:bg-secondary-hover"
       }`}
     >
       Minute
@@ -46,7 +46,6 @@ const LabeledSlider: React.FC<{
   step?: number;
   onChange: (newValue: number) => void;
   valueDisplay?: React.ReactNode;
-  colorClass?: string;
   ariaLabel?: string;
 }> = ({
   label,
@@ -56,12 +55,11 @@ const LabeledSlider: React.FC<{
   step = 1,
   onChange,
   valueDisplay,
-  colorClass = "accent-blue-500",
   ariaLabel,
 }) => (
   <div className="w-full">
-    <div className="text-sm text-gray-600 mb-1">{label}</div>
-    <div className="flex items-center gap-2 mb-0.5">
+    <div className="text-sm text-on-surface mb-1">{label}</div>
+    <div className="flex items-center gap-2 mb-1">
       <input
         type="range"
         min={min}
@@ -69,7 +67,7 @@ const LabeledSlider: React.FC<{
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className={`flex-1 w-full ${colorClass}`}
+        className="flex-1 w-full accent-slider-thumb"
         aria-label={ariaLabel || label}
       />
       {valueDisplay}
@@ -78,22 +76,22 @@ const LabeledSlider: React.FC<{
 );
 
 const IntervalAdjustButton: React.FC<{
-    label: string;
-    onClick: () => void;
-    disabled: boolean;
-    ariaLabel: string;
-  }> = ({ label, onClick, disabled, ariaLabel }) => {
-    return (
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        aria-label={ariaLabel}
-        className="flex items-center justify-center bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 rounded text-sm font-bold transition-colors"
-      >
-        {label}
-      </button>
-    );
-  };
+  label: string;
+  onClick: () => void;
+  disabled: boolean;
+  ariaLabel: string;
+}> = ({ label, onClick, disabled, ariaLabel }) => {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex items-center justify-center rounded text-sm font-bold transition-colors bg-secondary text-on-secondary hover:bg-secondary-hover disabled:bg-disabled disabled:text-on-disabled`}
+      aria-label={ariaLabel}
+    >
+      {label}
+    </button>
+  );
+};
 
 const IntervalAdjustButtons: React.FC<{
   value: number;
@@ -101,9 +99,8 @@ const IntervalAdjustButtons: React.FC<{
   min: number;
   max: number;
 }> = ({ value, onChange, min, max }) => {
-
   return (
-    <div className="grid grid-cols-4 gap-2 text-xs text-gray-600 mb-0.5">
+    <div className="grid grid-cols-4 gap-2 text-xs text-on-surface mb-1">
       <IntervalAdjustButton
         label="-12"
         onClick={() => onChange(Math.max(min, value - 12))}
@@ -151,8 +148,8 @@ const ToneCard: React.FC<{
   updateHarmonicInterval,
   updateNoteType,
 }) => (
-  <div className="bg-white border rounded-lg p-3 flex flex-col w-full">
-    <div className="font-semibold text-base mb-0.5">{name}</div>
+  <div className="border rounded-lg p-3 flex flex-col w-full bg-surface">
+    <div className="font-semibold text-base mb-1 text-on-surface">{name}</div>
     <HandToggle id={id} timeType={timeType} updateNoteType={updateNoteType} />
     {/* 3. Volume label & 4. Volume slider */}
     <LabeledSlider
@@ -163,11 +160,10 @@ const ToneCard: React.FC<{
       step={0.01}
       onChange={(val) => updateVolume(id, val)}
       valueDisplay={
-        <span className="text-xs min-w-[1.5rem] text-right">
+        <span className="text-xs min-w-[1.5rem] text-right text-on-surface">
           {Math.round(volume * 100)}%
         </span>
       }
-      colorClass="accent-red-500"
       ariaLabel={`Volume for ${name}`}
     />
     {/* 5. Interval label & 6. Interval slider */}
@@ -179,11 +175,10 @@ const ToneCard: React.FC<{
       step={1}
       onChange={(val) => updateHarmonicInterval(id, val)}
       valueDisplay={
-        <span className="text-xs min-w-[1.5rem] text-right">
+        <span className="text-xs min-w-[1.5rem] text-right text-on-surface">
           {harmonicInterval > 0 ? `+${harmonicInterval}` : harmonicInterval} st
         </span>
       }
-      colorClass="accent-blue-500"
       ariaLabel={`Interval for ${name}`}
     />
     {/* Interval adjust buttons */}
