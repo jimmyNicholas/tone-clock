@@ -1,0 +1,19 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#f5f5dc" stroke="#8b4513" stroke-width="1"/>
+  
+  <!-- Clock numbers in typewriter style -->
+  <text x="16" y="8" text-anchor="middle" font-family="monospace" font-size="6" fill="#2c1810">12</text>
+  <text x="24" y="16" text-anchor="middle" font-family="monospace" font-size="6" fill="#2c1810">3</text>
+  <text x="16" y="24" text-anchor="middle" font-family="monospace" font-size="6" fill="#2c1810">6</text>
+  <text x="8" y="16" text-anchor="middle" font-family="monospace" font-size="6" fill="#2c1810">9</text>
+  
+  <!-- Hour hand -->
+  <line x1="16" y1="16" x2="16" y2="8" stroke="#4682b4" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Minute hand -->
+  <line x1="16" y1="16" x2="22" y2="16" stroke="#dc143c" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Center dot -->
+  <circle cx="16" cy="16" r="1" fill="#2c1810"/>
+</svg> 

@@ -14,7 +14,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Tone Clock",
-  description: "Hear music through time",
+  description: "Listen to the time",
+  icons: {
+    icon: [
+      { url: '/favicon-clock.svg', type: 'image/svg+xml' },
+    ],
+  },
 };
 
 export default function RootLayout({
