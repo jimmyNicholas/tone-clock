@@ -20,6 +20,9 @@ export const metadata: Metadata = {
       { url: '/favicon-clock.svg', type: 'image/svg+xml' },
     ],
   },
+  verification: {
+    google: "r39IYJ_OtEtNR6BLhnZuD19cA7M1aGYlAEsRDkUHOrs",
+  },
 };
 
 export default function RootLayout({
